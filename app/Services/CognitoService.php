@@ -30,28 +30,24 @@ class CognitoService
     }
 
 
-     public function authenticate(string $email, string $password): bool
+    public function authenticate(string $email, string $password): array
     {
-        try {
-            $result = $this->client->adminInitiateAuth([
-                'AuthFlow' => 'ADMIN_USER_PASSWORD_AUTH',
-                'ClientId' => $this->clientId,
-                'UserPoolId' => $this->userPoolId,
-                'AuthParameters' => [
-                    'USERNAME' => $email,
-                    'PASSWORD' => $password,
-                    'SECRET_HASH' => $this->secretHash($email),
-                ],
-            ]);
-        } catch (CognitoIdentityProviderException $e) {
-            if (in_array($e->getAwsErrorCode(), ['NotAuthorizedException', 'UserNotFoundException'])) {
-                return false;
-            }
+        $result = $this->client->adminInitiateAuth([
+            'AuthFlow' => 'ADMIN_USER_PASSWORD_AUTH',
+            'ClientId' => $this->clientId,
+            'UserPoolId' => $this->userPoolId,
+            'AuthParameters' => [
+                'USERNAME' => $email,
+                'PASSWORD' => $password,
+                'SECRET_HASH' => $this->secretHash($email),
+            ],
+        ]);
 
-            throw $e;
-        }
-
-        return isset($result['AuthenticationResult']);
+        return [
+            'challenge' => $result->get('ChallengeName'),
+            'session' => $result->get('Session'),
+            'authentication' => $result->get('AuthenticationResult'),
+        ];
     }
 
 
@@ -60,5 +56,34 @@ class CognitoService
         return base64_encode(
             hash_hmac('sha256', $username . $this->clientId, $this->clientSecret, true)
         );
+    }
+
+
+
+    //Update password 
+    public function completeNewPassword(
+        string $email,
+        string $newPassword,
+        string $session
+    ): array {
+        $result = $this->client->respondToAuthChallenge([
+            'ClientId' => $this->clientId,
+            'ChallengeName' => 'NEW_PASSWORD_REQUIRED',
+            'Session' => $session,
+            'ChallengeResponses' => [
+                'USERNAME' => $email,
+                'NEW_PASSWORD' => $newPassword,
+
+                'userAttributes.name' => $email,
+                'SECRET_HASH' => $this->secretHash($email),
+
+            ],
+        ]);
+
+        return [
+            'access_token' => $result->get('AuthenticationResult')['AccessToken'] ?? null,
+            'id_token' => $result->get('AuthenticationResult')['IdToken'] ?? null,
+            'refresh_token' => $result->get('AuthenticationResult')['RefreshToken'] ?? null,
+        ];
     }
 }

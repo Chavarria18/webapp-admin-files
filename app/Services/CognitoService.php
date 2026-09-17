@@ -15,9 +15,9 @@ class CognitoService
     ) {
     }
 
-    public function register(string $email, string $password, string $name): void
+    public function register(string $email, string $password, string $name): array
     {
-        $this->client->signUp([
+        $result = $this->client->signUp([
             'ClientId' => $this->clientId,
             'SecretHash' => $this->secretHash($email),
             'Username' => $email,
@@ -27,6 +27,24 @@ class CognitoService
                 ['Name' => 'name', 'Value' => $name],
             ],
         ]);
+        return ['sub' => $result['UserSub']];
+    }
+
+    public function adminRegister(string $email, string $password, string $name): array
+    {
+        $result = $this->client->adminCreateUser([
+            'UserPoolId' => $this->userPoolId,
+            'Username' => $email,
+            'UserAttributes' => [
+                ['Name' => 'email', 'Value' => $email],
+                ['Name' => 'email_verified', 'Value' => 'true'],
+                ['Name' => 'name', 'Value' => $name],
+            ],
+            'TemporaryPassword' => $password,
+            'MessageAction' => 'SUPPRESS',
+        ]);
+
+        return ['sub' => collect($result['User']['Attributes'])->firstWhere('Name', 'sub')['Value']];
     }
 
 
@@ -85,5 +103,36 @@ class CognitoService
             'id_token' => $result->get('AuthenticationResult')['IdToken'] ?? null,
             'refresh_token' => $result->get('AuthenticationResult')['RefreshToken'] ?? null,
         ];
+    }
+
+    public function forgotPassword(string $email): void
+    {
+        $this->client->forgotPassword([
+            'ClientId' => $this->clientId,
+            'Username' => $email,
+            'SecretHash' => $this->secretHash($email),
+        ]);
+    }
+
+    public function confirmForgotPassword(
+        string $email,
+        string $code,
+        string $newPassword
+    ): void {
+        $this->client->confirmForgotPassword([
+            'ClientId' => $this->clientId,
+            'Username' => $email,
+            'ConfirmationCode' => $code,
+            'Password' => $newPassword,
+            'SecretHash' => $this->secretHash($email),
+        ]);
+    }
+
+    public function deleteUser(string $username): void
+    {
+        $this->client->adminDeleteUser([
+            'UserPoolId' => $this->userPoolId,
+            'Username' => $username,
+        ]);
     }
 }

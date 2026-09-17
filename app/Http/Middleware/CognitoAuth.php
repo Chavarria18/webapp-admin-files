@@ -47,4 +47,6 @@ class CognitoAuth
         Auth::login($user);
         return $next($request);
     }
+
+    
 }

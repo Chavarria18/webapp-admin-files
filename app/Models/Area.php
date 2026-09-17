@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
-#[Fillable(['nombre'])]
+#[Fillable(['name'])]
 class Area extends Model
 {
     public function usuarios()

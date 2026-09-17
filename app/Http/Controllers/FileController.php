@@ -1,0 +1,143 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Services\S3Service;
+use Illuminate\Http\Request;
+use App\Models\File;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+
+class FileController extends Controller
+{
+
+
+
+
+    public function showFilesForm()
+    {
+        $user = auth()->user();
+
+        return view('files.index');
+    }
+
+    public function storeFiles(Request $request, S3Service $service)
+    {
+        $validated = $request->validate([
+            'file' => ['required', 'file', 'max:10240'], // 10MB
+        ]);
+        $file = $request->file('file');
+        $originalName = $file->getClientOriginalName();
+
+
+        do {
+            $uuid = (string) Str::uuid();
+            $fileName = $uuid . '_' . $originalName;
+        } while (File::where('uuid', $fileName)->exists());
+
+
+        $path = $service->upload($request->file('file'), 'archivos', $fileName);
+
+
+        $archivo = File::create([
+            'uuid' => $fileName,
+            'name' => $originalName,
+            's3dir' => $path,
+            'size' => $request->file('file')->getSize(),
+            'user_id' => auth()->id(),
+        ]);
+
+        return redirect()->route('files')->with('success', 'Archivo subido correctamente.');
+    }
+
+    public function downloadFiles(File $file)
+    {
+        $user = auth()->user();
+
+
+        $name = explode("/", $file->s3dir)[1];
+        return Storage::disk('s3')->download(
+            $file->s3dir,
+            $file->name
+        );
+
+
+    }
+
+    public function checkName(Request $request)
+    {
+        $exists = File::where('name', $request->name)->exists();
+
+        return response()->json([
+            'exists' => $exists,
+        ]);
+    }
+
+
+    public function destroy(File $file)
+    {
+        if ($file->s3dir && Storage::disk('s3')->exists($file->s3dir)) {
+            Storage::disk('s3')->delete($file->s3dir);
+        }
+
+        $file->delete();
+
+        return redirect()->route('home')->with('success', 'File moved to recycle bin');
+    }
+
+
+    public function recycleBin()
+    {
+        $user = auth()->user();
+        if ($user->role === 'estandar') {
+
+            $query = File::where('user_id', $user->id);
+
+        } elseif ($user->role === 'jefe_area') {
+
+            $query = File::whereHas('user', function ($q) use ($user) {
+                $q->where('area_id', $user->area_id);
+            });
+
+        } elseif ($user->role === 'gerente') {
+
+            $query = File::whereHas('user', function ($q) use ($user) {
+                $q->whereIn('area_id', $user->areasGestionadas->pluck('id'));
+            });
+
+        } elseif ($user->role === 'admin') {
+
+            $query = File::query();
+
+        } else {
+
+            abort(403);
+        }
+
+        $files = $query->onlyTrashed()->paginate(10);
+        return view('recyclebin.index', compact('files'));
+    }
+
+    public function restoreFile($id)
+    {
+        File::onlyTrashed()->findOrFail($id)->restore();
+
+        return redirect()->back()->with('success', 'File restored');
+    }
+
+    public function forceDelete($id)
+    {
+        $file = File::onlyTrashed()->findOrFail($id);
+
+        if ($file->s3dir && Storage::disk('s3')->exists($file->s3dir)) {
+            Storage::disk('s3')->delete($file->s3dir);
+        }
+
+        $file->forceDelete();
+
+        return back()->with('success', 'File permanently deleted');
+    }
+
+
+}

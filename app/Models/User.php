@@ -35,4 +35,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(History::class);
     }
+
+
+      public function areasGestionadas(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Area::class, 'gerente_areas', 'gerente_id', 'area_id');
+    }
+    
+
+    
 }

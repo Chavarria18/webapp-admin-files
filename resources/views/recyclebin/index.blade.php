@@ -2,7 +2,7 @@
 
 
     <div class="container">
-        <h1>My Files</h1>
+        <h1>Recycle BIN</h1>
 
         <div class="row">
             <div class="col-md-8">
@@ -52,14 +52,23 @@
                                             data-bs-toggle="tooltip" data-bs-placement="top" title="Download file">
                                             <i class="bi bi-download"></i>
                                         </a>
-                                        <form action="{{ route('files.destroy', $file) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('files.fdestroy', $file) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
 
                                             <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
                                                 data-bs-placement="top" title="Delete file"
-                                                onclick="return confirm('Are you sure you want to delete this file?')">
+                                                onclick="return confirm('Are you sure you want to permanently delete this file?')">
                                                 <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('files.restore', $file->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PATCH')
+
+                                            <button type="submit" class="btn btn-outline-success btn-sm"
+                                                data-bs-toggle="tooltip" data-bs-placement="top" title="Restore file">
+                                                <i class="bi bi-arrow-counterclockwise"></i>
                                             </button>
                                         </form>
                                     </td>
@@ -74,10 +83,7 @@
                     </div>
                 @endif
             </div>
-            <div class="col-md-4">
-                @include('files.info', ['metrics' => $metrics])
-                <a href="{{ route('files') }}" class="btn btn-primary">Subir archivo</a>
-            </div>
+
         </div>
 
     </div>

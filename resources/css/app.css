@@ -1,1 +1,144 @@
- @import 'bootstrap/dist/css/bootstrap.min.css'
+ @import 'bootstrap/dist/css/bootstrap.min.css';
+ @import '../views/auth/auth.css';
+ @import '../views/files/file.css';
+
+ html,
+ body {
+     margin: 0;
+     padding: 0;
+     overflow-y: auto;
+     background-color: #dae9fc;
+     display: flex;
+     flex-direction: column;
+     min-height: 100vh;
+ }
+
+ .pagination-wrapper .d-none.flex-sm-fill.d-sm-flex {
+     flex-direction: column-reverse !important;
+     justify-content: center !important;
+     align-items: center !important;
+     gap: 0.5rem;
+ }
+
+ .pagination-wrapper .small.text-muted {
+     text-align: center;
+ }
+
+ .pagination-wrapper .pagination {
+     margin-bottom: 0;
+ }
+
+
+
+ .alert {
+     position: relative;
+     padding: 1rem 3rem 1rem 1rem;
+ }
+
+ .alert-close {
+     position: absolute;
+     top: 50%;
+     right: 10px;
+     transform: translateY(-50%);
+
+     border: none;
+     background: transparent;
+     font-size: 1.5rem;
+     line-height: 1;
+     cursor: pointer;
+
+     color: inherit;
+     opacity: 0.7;
+ }
+
+ .alert-close:hover {
+     opacity: 1;
+ }
+
+ main {
+     flex: 1;
+ }
+
+ .footer {
+
+     margin-top: auto;
+     padding: 20px 0;
+     border-top: 1px solid #ddd;
+     background: #f8f9fa;
+     flex-shrink: 0;
+ }
+
+ .footer-content {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     gap: 20px;
+ }
+
+ .footer-brand {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     font-weight: 600;
+     color: #333;
+ }
+
+ .footer-brand i {
+     font-size: 1.2rem;
+ }
+
+ .footer-info {
+     display: flex;
+     align-items: center;
+     gap: 25px;
+     color: #6c757d;
+     font-size: 0.9rem;
+ }
+
+ .footer-info span {
+     display: flex;
+     align-items: center;
+     gap: 6px;
+ }
+
+ .sheet {
+     margin-top: 10px;
+     background-color: white;
+     border-radius: 15px;
+     min-height: 500px;
+     padding: 30px;
+     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+ }
+ 
+ .navbar {
+    background-color: #f8f9fa !important;
+    padding: 12px 30px;
+    border-bottom: 1px solid #ddd;
+}
+
+.navbar-nav {
+    width: 100%;
+    gap: 30px;
+}
+
+
+
+.nav-link {
+    color: #495057 !important;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: #212529 !important;
+}
+
+.navbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.role {
+    font-weight: 500;
+}

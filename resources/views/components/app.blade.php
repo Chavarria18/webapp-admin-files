@@ -15,42 +15,74 @@
         @include('components.navbar')
     @endunless
 
+    @unless(request()->routeIs('auth.*'))
+        <div class="container">
+            <div class="row">
 
-    @if (session('success'))
-        <div class="parchment-flash parchment-flash--success">
-            {{ session('success') }}
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible">
+                        {{ session('success') }}
+
+                        <button type="button" class="alert-close" onclick="this.parentElement.remove()">
+                            &times;
+                        </button>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible">
+                        {{ $errors->first() }}
+
+                        <button type="button" class="alert-close" onclick="this.parentElement.remove()">
+                            &times;
+                        </button>
+                    </div>
+                @endif
+
+            </div>
+
+            <div class="row">
+                <div class="sheet">
+                    <main>
+                        {{ $slot }}
+                    </main>
+                </div>
+            </div>
         </div>
-    @endif
+    @else
 
-    @if (session('error'))
-        <div class="parchment-flash parchment-flash--error">
-            {{ session('error') }}
-        </div>
-    @endif
-
-    @if ($errors->any())
-        <div class="parchment-flash parchment-flash--error">
-            {{ $errors->first() }}
-        </div>
-    @endif
-
-    <div class="sheet">
-
-
-
-
-        <main>
+        <main class="auth-layout">
             {{ $slot }}
         </main>
 
+    @endunless
+    <footer class="footer">
 
+        <div class="container">
 
+            <div class="footer-content">
 
+                <div class="footer-brand">
+                    <i class="bi bi-folder-fill"></i>
+                    <span>File Admin</span>
+                </div>
 
-    </div>
+                <div class="footer-info">
+                    <span>
+                        <i class="bi bi-shield-check"></i>
+                        Administración de archivos
+                    </span>
 
+                    <span>
+                        © {{ date('Y') }} File Admin
+                    </span>
+                </div>
 
+            </div>
 
+        </div>
+
+    </footer>
 </body>
 
 </html>

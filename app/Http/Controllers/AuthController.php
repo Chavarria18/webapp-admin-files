@@ -7,8 +7,8 @@ use Exception;
 use Illuminate\Http\Request;
 use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
 use App\Models\User;
-use App\Http\Controllers\Area;
-use App\Helpers\JwtHelper; 
+use App\Models\Area;
+use App\Helpers\JwtHelper;
 
 class AuthController extends Controller
 {
@@ -22,13 +22,15 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+
+
     public function showRegisterForm()
     {
         $areas = Area::all();
         return view('auth.register', compact('areas'));
     }
 
-    public function storeUser(Request $request, string $cognito)
+    public function storeUser(Request $request)
     {
 
         $validated = $request->validate([
@@ -38,18 +40,45 @@ class AuthController extends Controller
             'rol' => ['required', 'in:estandar,jefe_area,gerente,admin'],
             'area_id' => ['required', 'exists:areas,id'],
         ]);
+        try {
+            $result = $this->cognito->adminRegister(
+                $validated['email'],
+                $validated['password'],
+                $validated['name']
+            );
 
+        } catch (CognitoIdentityProviderException $e) {
+
+            $errorCode = $e->getAwsErrorCode();
+
+            return back()
+                ->withInput($request->except('password'))
+                ->withErrors([
+                    'email' => match ($errorCode) {
+                        'UsernameExistsException' =>
+                            'A user with this email already exists in Cognito.',
+                        'InvalidPasswordException' =>
+                            'The password does not meet Cognito requirements.',
+                        'InvalidParameterException' =>
+                            'One or more values are invalid.',
+                        'TooManyRequestsException' =>
+                            'Too many requests. Please try again later.',
+                        default =>
+                            'Unable to create the user. Please try again.',
+                    }
+                ]);
+        }
 
         $user = new User();
-        $user->cognito_sub = $cognito;
+        $user->cognito_sub = $result['sub'];
         $user->name = $validated['name'];
         $user->email = $validated['email'];
-        $user->rol = $validated['rol'];
+        $user->role = $validated['rol'];
         $user->area_id = $validated['area_id'];
         $user->save();
 
-        return redirect()->route('auth.login')
-            ->with('success', 'Password updated successfully.');
+        return redirect()->route('users.register')
+            ->with('success', 'User succesfuly created');
     }
 
 
@@ -66,12 +95,30 @@ class AuthController extends Controller
                 $request->email,
                 $request->password
             );
+
         } catch (CognitoIdentityProviderException $e) {
 
+            $errorCode = $e->getAwsErrorCode();
+
+            if ($errorCode === 'PasswordResetRequiredException') {
+
+                session([
+                    'cognito_reset_email' => $request->email,
+                ]);
+
+                return redirect()
+                    ->route('auth.forgot-password')
+                    ->with(
+                        'info',
+                        'Your password must be reset before you can sign in.'
+                    );
+            }
+
+
             if (
-                in_array($e->getAwsErrorCode(), [
+                in_array($errorCode, [
                     'NotAuthorizedException',
-                    'UserNotFoundException'
+                    'UserNotFoundException',
                 ])
             ) {
                 return back()
@@ -84,7 +131,9 @@ class AuthController extends Controller
             throw $e;
         }
 
+
         if (($result['challenge'] ?? null) === 'NEW_PASSWORD_REQUIRED') {
+
             session([
                 'cognito_email' => $request->email,
                 'cognito_session' => $result['session'],
@@ -92,29 +141,42 @@ class AuthController extends Controller
 
             return redirect()->route('auth.new-password');
         }
+
+        // Successful authentication
         $authentication = $result['authentication'];
+
+        $claims = JwtHelper::decode(
+            $authentication['IdToken']
+        );
+
+        $user = User::where(
+            'cognito_sub',
+            $claims->sub
+        )->first();
+
+        if (!$user) {
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors([
+                    'email' => 'User is not registered in the system.',
+                ]);
+        }
+
+        // Laravel authentication
+        auth()->login($user);
+
+        // Store Cognito session
         session([
             'cognito_user' => [
-                'email' => $request->email,
+                'email' => $user->email,
                 'access_token' => $authentication['AccessToken'],
                 'id_token' => $authentication['IdToken'],
                 'refresh_token' => $authentication['RefreshToken'] ?? null,
                 'expires_at' => now()->addSeconds(
                     $authentication['ExpiresIn']
                 ),
-                'expires_in' => $authentication['ExpiresIn'],
-                'now' => now()
             ],
         ]);
-        $claims =  JwtHelper::decode($authentication['IdToken']);
-        $user = User::where('cognito_sub', $claims->sub)->first();
-
-        if (!$user) {
-            return back()
-                ->withInput($request->only('email'))
-                ->withErrors(['email' => 'Usuario no registrado en el sistema.']);
-        }
-
 
         return redirect()->route('home');
     }
@@ -144,6 +206,120 @@ class AuthController extends Controller
         return redirect()->route('auth.login')
             ->with('success', 'Password updated successfully.');
     }
+
+
+
+    public function forgotPassword()
+    {
+        return view('auth.forgot-password');
+    }
+
+    public function confirmPassword()
+    {
+        return view('auth.confirm-password');
+    }
+
+    public function confirmForgotPassword(Request $request)
+    {
+        $request->validate([
+            'code' => ['required', 'string'],
+            'password' => ['required', 'confirmed', 'min:8'],
+        ]);
+
+        $email = session('cognito_reset_email');
+
+        if (!$email) {
+            return redirect()
+                ->route('auth.forgot-password')
+                ->withErrors([
+                    'email' => 'Password reset session expired.',
+                ]);
+        }
+
+        try {
+            $this->cognito->confirmForgotPassword(
+                $email,
+                $request->code,
+                $request->password
+            );
+
+
+
+            return redirect()
+                ->route('auth.login')
+                ->with('success', 'Password reset successfully. You can now log in.');
+
+        } catch (CognitoIdentityProviderException $e) {
+
+            if ($e->getAwsErrorCode() === 'CodeMismatchException') {
+                return back()->withErrors([
+                    'code' => 'Invalid verification code.',
+                ]);
+            }
+
+            if ($e->getAwsErrorCode() === 'ExpiredCodeException') {
+                return back()->withErrors([
+                    'code' => 'The verification code has expired.',
+                ]);
+            }
+
+            if ($e->getAwsErrorCode() === 'InvalidPasswordException') {
+                return back()->withErrors([
+                    'password' => 'The password does not meet Cognito requirements.',
+                ]);
+            }
+
+            throw $e;
+        }
+    }
+
+    public function sendResetCode(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        try {
+            $this->cognito->forgotPassword($request->email);
+
+            session([
+                'cognito_reset_email' => $request->email,
+            ]);
+
+            return redirect()->route('auth.confirm-forgot-password.index');
+
+        } catch (CognitoIdentityProviderException $e) {
+
+            if ($e->getAwsErrorCode() === 'UserNotFoundException') {
+                return back()->withErrors([
+                    'email' => 'User not found.',
+                ]);
+            }
+
+            if ($e->getAwsErrorCode() === 'InvalidParameterException') {
+                return back()->withErrors([
+                    'email' => 'This user does not have a verified email or phone number.',
+                ]);
+            }
+
+            throw $e;
+        }
+    }
+
+
+    public function logout()
+    {
+        auth()->logout();
+
+        session()->forget('cognito_user');
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return redirect()
+            ->route('auth.login')
+            ->with('success', 'Logged out successfully.');
+    }
+
 
 
 

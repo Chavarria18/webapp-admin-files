@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\File;
+use App\Models\Area;
 use App\Services\CognitoService;
 class UserController extends Controller
 {
@@ -12,9 +13,16 @@ class UserController extends Controller
         private readonly CognitoService $cognito
     ) {
     }
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::paginate(20);
+        $search = $request->search;
+        if (empty($search)) {
+            $users = User::paginate(10);
+        } {
+            $users = User::where('email', 'like', "%{$search}%")
+                ->paginate(10);
+        }
+
         return view('users.index', compact('users'));
     }
     public function edit(User $user)
@@ -26,12 +34,41 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users,email,' . $user->id],
             'role' => ['required', 'in:estandar,jefe_area,gerente,admin'],
-            'area_id' => ['required', 'exists:areas,id'],
+           
         ]);
 
-        $user->update($validated);
+        if ($request->role === 'gerente') {
+
+            $request->validate([
+                'area_ids' => ['required', 'array', 'min:1'],
+                'area_ids.*' => ['exists:areas,id'],
+            ]);
+
+            $user->update([
+                'name' => $validated['name'],
+                'role' => $validated['role'],
+                'area_id' => null,
+            ]);
+
+            $user->areasGestionadas()->sync($request->area_ids);
+
+        } else {
+
+            $request->validate([
+                'area_id' => ['required', 'exists:areas,id'],
+            ]);
+
+            $user->update([
+                'name' => $validated['name'],
+                'role' => $validated['role'],
+                'area_id' => $request->area_id,
+            ]);
+
+            $user->areasGestionadas()->detach();
+        }
+
+       
 
         return redirect()->route('users.index')->with('success', 'Usuario actualizado.');
     }

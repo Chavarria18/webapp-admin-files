@@ -3,6 +3,22 @@
         <h1>Usuarios</h1>
 
         <a href="{{ route('users.register') }}" class="btn btn-primary mb-3">Nuevo usuario</a>
+        <form method="GET" action="{{ route('users.index') }}" class="mb-3">
+            <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Search by name..."
+                    value="{{ request('search') }}">
+
+                <button class="btn btn-outline-secondary" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+
+                @if(request('search'))
+                    <a href="{{ route('users.index') }}" class="btn btn-outline-danger">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                @endif
+            </div>
+        </form>
 
         @if ($users->isEmpty())
             <p>No hay usuarios registrados.</p>
@@ -27,13 +43,19 @@
                             <td>{{ $user->area?->name ?? '—' }}</td>
                             <td>{{ $user->created_at?->format('Y-m-d') }}</td>
                             <td>
-                                <a href="{{ route('users.edit', $user) }}">Editar</a>
+                                <a href="{{ route('users.edit', $user) }}" class="btn btn-outline-primary btn-sm"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Download file">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
 
                                 <form action="{{ route('users.destroy', $user) }}" method="POST" style="display:inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" onclick="return confirm('¿Eliminar este usuario?')">
-                                        Eliminar
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" title="Delete file"
+                                        onclick="return confirm('Are you sure you want to delete this user?')">
+                                        <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
                             </td>
@@ -42,7 +64,7 @@
                 </tbody>
             </table>
 
-            <div class="d-flex justify-content-center">
+            <div class="pagination-wrapper mt-3">
                 {{ $users->links() }}
             </div>
         @endif

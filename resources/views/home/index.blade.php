@@ -76,8 +76,17 @@
             </div>
             <div class="col-md-4">
                 @include('files.info', ['metrics' => $metrics])
-                <a href="{{ route('files') }}" class="btn btn-primary">Subir archivo</a>
+                <a href="{{ route('files') }}" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="Upload file">
+                    <i class="bi bi-upload"></i>
+                </a>
+
+                <a href="{{ route('recycle') }}" class="btn btn-info" data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="Recycle bin">
+                    <i class="bi bi-trash"></i>
+                </a>
             </div>
+
         </div>
 
     </div>

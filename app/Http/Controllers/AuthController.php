@@ -26,20 +26,34 @@ class AuthController extends Controller
 
     public function showRegisterForm()
     {
+        $this->authorize('create', User::class);
+
         $areas = Area::all();
         return view('auth.register', compact('areas'));
     }
 
     public function storeUser(Request $request)
     {
+        $this->authorize('create', User::class);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'min:8'],
             'rol' => ['required', 'in:estandar,jefe_area,gerente,admin'],
-            'area_id' => ['required', 'exists:areas,id'],
         ]);
+
+        if ($validated['rol'] === 'gerente') {
+            $request->validate([
+                'area_ids' => ['required', 'array', 'min:1'],
+                'area_ids.*' => ['exists:areas,id'],
+            ]);
+        } else {
+            $request->validate([
+                'area_id' => ['required', 'exists:areas,id'],
+            ]);
+        }
+
         try {
             $result = $this->cognito->adminRegister(
                 $validated['email'],
@@ -74,8 +88,12 @@ class AuthController extends Controller
         $user->name = $validated['name'];
         $user->email = $validated['email'];
         $user->role = $validated['rol'];
-        $user->area_id = $validated['area_id'];
+        $user->area_id = $validated['rol'] === 'gerente' ? null : $request->area_id;
         $user->save();
+
+        if ($validated['rol'] === 'gerente') {
+            $user->areasGestionadas()->sync($request->area_ids);
+        }
 
         return redirect()->route('users.register')
             ->with('success', 'User succesfuly created');

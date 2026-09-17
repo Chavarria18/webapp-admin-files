@@ -3,7 +3,7 @@
     <div class="container login-page">
         <div class="row">
 
-          
+
 
             <div class="col-md-6 login-container">
 
@@ -12,6 +12,15 @@
                         <img src="{{ asset('images/logo.svg') }}" alt="Logo">
                     </div>
                     <h1 class="login-title">Login</h1>
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible">
+                            {{ session('success') }}
+
+                            <button type="button" class="alert-close" onclick="this.parentElement.remove()">
+                                &times;
+                            </button>
+                        </div>
+                    @endif
                     @if ($errors->any())
                         <div class="alert alert-danger alert-dismissible">
                             {{ $errors->first() }}
@@ -30,7 +39,7 @@
                 </div>
 
             </div>
-  <div class="col-md-6 login-image">
+            <div class="col-md-6 login-image">
             </div>
         </div>
     </div>

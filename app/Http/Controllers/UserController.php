@@ -16,22 +16,46 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $search = $request->search;
-        if (empty($search)) {
-            $users = User::paginate(10);
-        } {
-            $users = User::where('email', 'like', "%{$search}%")
-                ->paginate(10);
+
+        $query = match ($request->user()->role) {
+            'admin' => User::query(),
+            'gerente' => User::whereIn('area_id', $request->user()->areasGestionadas->pluck('id')),
+            'jefe_area' => User::where('area_id', $request->user()->area_id),
+        };
+
+        if (! empty($search)) {
+            $query->where('email', 'like', "%{$search}%");
         }
+
+        $users = $query->paginate(10);
 
         return view('users.index', compact('users'));
     }
     public function edit(User $user)
     {
+        $this->authorize('update', $user);
+
         return view('users.edit', ['user' => $user, 'areas' => Area::all()]);
+    }
+
+    public function organigrama()
+    {
+        $this->authorize('viewOrganigrama', User::class);
+
+        $admins = User::where('role', 'admin')->get();
+
+        $areas = Area::with([
+            'gerentes',
+            'usuarios' => fn ($query) => $query->whereIn('role', ['jefe_area', 'estandar']),
+        ])->get();
+
+        return view('users.organigarm', compact('admins', 'areas'));
     }
 
     public function update(Request $request, User $user)
     {
+        $this->authorize('update', $user);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'role' => ['required', 'in:estandar,jefe_area,gerente,admin'],
@@ -75,6 +99,8 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        $this->authorize('delete', $user);
+
         try {
 
             $this->cognito->deleteUser($user->email);

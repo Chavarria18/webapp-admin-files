@@ -13,9 +13,11 @@ class RolAdmin
      *
      * @param  Closure(Request): (Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (auth()->user()->role !== 'admin') {
+        $allowed = $roles ?: ['admin'];
+
+        if (! in_array(auth()->user()->role, $allowed, true)) {
             abort(403);
         }
 

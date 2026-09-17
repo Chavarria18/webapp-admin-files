@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\S3Service;
 use Illuminate\Http\Request;
 use App\Models\File;
+use App\Models\History;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -12,7 +13,16 @@ use Illuminate\Support\Str;
 class FileController extends Controller
 {
 
+    private function logHistory(string $action): void
+    {
+        $user = auth()->user();
 
+        History::create([
+            'action' => $action,
+            'user_id' => $user->id,
+            'username' => $user->name,
+        ]);
+    }
 
 
     public function showFilesForm()
@@ -24,6 +34,8 @@ class FileController extends Controller
 
     public function storeFiles(Request $request, S3Service $service)
     {
+        $this->authorize('create', File::class);
+
         $validated = $request->validate([
             'file' => ['required', 'file', 'max:10240'], // 10MB
         ]);
@@ -48,13 +60,14 @@ class FileController extends Controller
             'user_id' => auth()->id(),
         ]);
 
+        $this->logHistory('upload');
+
         return redirect()->route('files')->with('success', 'Archivo subido correctamente.');
     }
 
     public function downloadFiles(File $file)
     {
-        $user = auth()->user();
-
+        $this->authorize('view', $file);
 
         $name = explode("/", $file->s3dir)[1];
         return Storage::disk('s3')->download(
@@ -67,7 +80,9 @@ class FileController extends Controller
 
     public function checkName(Request $request)
     {
-        $exists = File::where('name', $request->name)->exists();
+        $exists = File::where('name', $request->name)
+            ->where('user_id', auth()->id())
+            ->exists();
 
         return response()->json([
             'exists' => $exists,
@@ -77,11 +92,15 @@ class FileController extends Controller
 
     public function destroy(File $file)
     {
-        if ($file->s3dir && Storage::disk('s3')->exists($file->s3dir)) {
-            Storage::disk('s3')->delete($file->s3dir);
+        if (auth()->user()->cannot('delete', $file)) {
+            return redirect()->back()->withErrors([
+                    '403' => 'This user does not have permision to delete this file.',
+                ]);
         }
 
         $file->delete();
+
+        $this->logHistory('delete');
 
         return redirect()->route('home')->with('success', 'File moved to recycle bin');
     }
@@ -121,7 +140,13 @@ class FileController extends Controller
 
     public function restoreFile($id)
     {
-        File::onlyTrashed()->findOrFail($id)->restore();
+        $file = File::onlyTrashed()->findOrFail($id);
+
+        $this->authorize('restore', $file);
+
+        $file->restore();
+
+        $this->logHistory('restore');
 
         return redirect()->back()->with('success', 'File restored');
     }
@@ -130,11 +155,15 @@ class FileController extends Controller
     {
         $file = File::onlyTrashed()->findOrFail($id);
 
+        $this->authorize('forceDelete', $file);
+
         if ($file->s3dir && Storage::disk('s3')->exists($file->s3dir)) {
             Storage::disk('s3')->delete($file->s3dir);
         }
 
         $file->forceDelete();
+
+        $this->logHistory('force_delete');
 
         return back()->with('success', 'File permanently deleted');
     }

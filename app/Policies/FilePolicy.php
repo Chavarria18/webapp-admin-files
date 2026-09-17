@@ -21,12 +21,7 @@ class FilePolicy
      */
     public function view(User $user, File $file): bool
     {
-        return match ($user->role) {
-            'admin' => true,
-            'gerente' => $user->areasGestionadas->contains($file->user->area_id),
-            'jefe_area' => $user->area_id === $file->user->area_id,
-            default => $user->id === $file->user_id,
-        };
+        return $this->hasAccessTo($user, $file);
     }
 
     /**
@@ -34,7 +29,7 @@ class FilePolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -42,7 +37,7 @@ class FilePolicy
      */
     public function update(User $user, File $file): bool
     {
-        return false;
+        return $this->hasAccessTo($user, $file);
     }
 
     /**
@@ -50,7 +45,12 @@ class FilePolicy
      */
     public function delete(User $user, File $file): bool
     {
-        return false;
+        return match ($user->role) {
+            'admin' => true,
+            'gerente' => $user->areasGestionadas->contains($file->user->area_id),
+            'jefe_area' => $user->id === $file->user_id,
+            default => $user->id === $file->user_id,
+        };
     }
 
     /**
@@ -58,7 +58,7 @@ class FilePolicy
      */
     public function restore(User $user, File $file): bool
     {
-        return false;
+        return $this->hasAccessTo($user, $file);
     }
 
     /**
@@ -66,6 +66,19 @@ class FilePolicy
      */
     public function forceDelete(User $user, File $file): bool
     {
-        return false;
+        return $this->hasAccessTo($user, $file);
+    }
+
+    /**
+     * Shared area/ownership scoping used by every action on a file.
+     */
+    private function hasAccessTo(User $user, File $file): bool
+    {
+        return match ($user->role) {
+            'admin' => true,
+            'gerente' => $user->areasGestionadas->contains($file->user->area_id),
+            'jefe_area' => $user->area_id === $file->user->area_id,
+            default => $user->id === $file->user_id,
+        };
     }
 }

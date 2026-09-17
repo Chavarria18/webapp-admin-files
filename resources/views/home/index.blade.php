@@ -2,7 +2,13 @@
 
 
     <div class="container">
-        <h1>My Files</h1>
+        <h1>{{ $filterUser ? "Files de {$filterUser->name}" : 'My Files' }}</h1>
+
+        @if ($filterUser)
+            <a href="{{ route('home') }}" class="btn btn-outline-secondary btn-sm mb-3">
+                <i class="bi bi-arrow-left"></i> Ver todos los archivos
+            </a>
+        @endif
 
         <div class="row">
             <div class="col-md-8">

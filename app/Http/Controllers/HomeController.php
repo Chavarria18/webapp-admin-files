@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\File;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\FileService;
 
@@ -13,7 +14,7 @@ public function __construct(private FileService $fileService)
     {
 
     }
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
 
@@ -35,15 +36,20 @@ public function __construct(private FileService $fileService)
 
         } elseif ($user->role === 'admin') {
 
-           $query = File::query(); 
+           $query = File::query();
 
         } else {
 
             abort(403);
         }
 
-        $files = $query->paginate(2);
+        $filterUser = $request->filled('user_id') ? User::findOrFail($request->user_id) : null;
+
+        $files = $query
+            ->when($filterUser, fn ($q) => $q->where('user_id', $filterUser->id))
+            ->paginate(2)
+            ->withQueryString();
         $metrics = $this->fileService->getMetrics(auth()->user());
-        return view('home.index', compact('files','metrics'));
+        return view('home.index', compact('files', 'metrics', 'filterUser'));
     }
 }

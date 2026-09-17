@@ -6,15 +6,26 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-
-            @if(auth()->user()->role === 'admin')
+            @if(auth()->user()->role !== 'estandar')
                 <a href="{{ route('users.index') }}" class="nav-link">
                     Users
                 </a>
+            @endif
+            @if(auth()->user()->role === 'admin')
+
+
+                <a href="{{ route('history') }}" class="nav-link">
+                    History
+                </a>
+
+
 
             @endif
             <div class="navbar-right">
                 <span class="role">
+                    @if(auth()->user()->area)
+                        Area: {{ auth()->user()->area->name }} -
+                    @endif
                     {{ auth()->user()->role }}
                 </span>
 

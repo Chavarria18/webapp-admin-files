@@ -37,6 +37,24 @@
     min-height: 100vh;
 }
 
+.forgot-image {
+    background-image: url('../../../public/images/forgot.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+}
+
+.newpss-image {
+    background-image: url('../../../public/images/new-pass.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+}
+
+
+
 .login-form {
     display: flex;
     flex-direction: column;
@@ -55,6 +73,51 @@
 
 .login-form .btn {
     width: 100%;
+}
+
+.login-form .input-group {
+    flex-wrap: nowrap;
+}
+
+.login-form .input-group .form-control {
+    width: 1%;
+}
+
+.login-form .input-group .btn {
+    width: auto;
+    flex: 0 0 auto;
+}
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.register-form .form-group {
+    width: 100%;
+}
+
+.register-form .form-control {
+    width: 100%;
+}
+
+.register-form .btn {
+    width: 100%;
+}
+
+.register-form .input-group {
+    flex-wrap: nowrap;
+}
+
+.register-form .input-group .form-control {
+    width: 1%;
+}
+
+.register-form .input-group .btn {
+    width: auto;
+    flex: 0 0 auto;
 }
 
 .login-logo {

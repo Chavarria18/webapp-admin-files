@@ -1,4 +1,0 @@
-<x-app>
-
-HOme
-</x-app>

@@ -1,6 +1,7 @@
  @import 'bootstrap/dist/css/bootstrap.min.css';
  @import '../views/auth/auth.css';
  @import '../views/files/file.css';
+ @import '../views/users/organigarm.css';
 
  html,
  body {

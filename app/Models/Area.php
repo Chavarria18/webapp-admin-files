@@ -12,4 +12,9 @@ class Area extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function gerentes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'gerente_areas', 'area_id', 'gerente_id');
+    }
 }

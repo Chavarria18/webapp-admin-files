@@ -5,9 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\UserController;
-Route::get('/', function () {
-    return view('welcome');
-});
+use App\Http\Controllers\HistoryController;
 
 ## AUTH 
 Route::prefix('auth')->name('auth.')->group(function () {
@@ -53,6 +51,10 @@ Route::get('/recycle', [FileController::class, 'recycleBin'])
     ->name('recycle')
     ->middleware('cognito.auth');
 
+Route::get('/history', [HistoryController::class, 'index'])
+    ->name('history')
+    ->middleware(['cognito.auth', 'admin']);
+
 
 
 Route::get('/files', [FileController::class, 'showFilesForm'])
@@ -70,13 +72,13 @@ Route::delete('/files/{file}/fdestroy', [FileController::class, 'forceDelete'])
 Route::get('/files/{file}/download', [FileController::class, 'downloadFiles'])
     ->name('files.download')->middleware('cognito.auth');
 Route::get('/files/check-name', [FileController::class, 'checkName'])
-    ->name('files.check-name');
+    ->name('files.check-name')->middleware('cognito.auth');
 Route::patch('/files/{id}/restore', [FileController::class, 'restoreFile'])
     ->name('files.restore')->middleware('cognito.auth');
 
 ##Usuarios
 
-Route::middleware(['cognito.auth', 'admin'])->prefix('users')->name('users.')->group(function(){
+Route::middleware(['cognito.auth', 'admin:admin,gerente,jefe_area'])->prefix('users')->name('users.')->group(function(){
     ##Creacion de usuairos
     Route::get('/register', [AuthController::class, 'showRegisterForm'])
         ->name('register');
@@ -85,6 +87,7 @@ Route::middleware(['cognito.auth', 'admin'])->prefix('users')->name('users.')->g
 
 
     Route::get('/',[UserController::class,'index'])->name('index');
+    Route::get('/organigrama', [UserController::class, 'organigrama'])->name('organigrama');
     Route::get('/{user}/edit', [UserController::class, 'edit'])->name('edit');
     Route::put('/{user}', [UserController::class, 'update'])->name('update');
     Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');

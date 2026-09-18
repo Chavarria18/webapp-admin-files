@@ -9,7 +9,7 @@
                     <div class="login-logo">
                         <img src="{{ asset('images/logo.svg') }}" alt="Logo">
                     </div>
-                    <h1 class="login-title">Forgot password</h1>
+                    <h1 class="login-title">Recuperar contraseña</h1>
                     @if (session('success'))
                         <div class="alert alert-success alert-dismissible">
                             {{ session('success') }}
@@ -32,14 +32,14 @@
                     <form method="POST" action="{{ route('auth.send-reset-code') }}" class="login-form">
                         @csrf
 
-                        <input type="email" name="email" placeholder="Email" class="form-control" required>
+                        <input type="email" name="email" placeholder="Correo electrónico" class="form-control" required>
                         <div class="form-group">
                             <a href="{{ route('auth.login') }}">
-                                Back to login
+                                Volver al inicio de sesión
                             </a>
                         </div>
                         <button type="submit" class="btn btn-primary">
-                            Send reset code
+                            Enviar código de restablecimiento
                         </button>
                     </form>
 

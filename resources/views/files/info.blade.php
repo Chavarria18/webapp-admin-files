@@ -11,7 +11,7 @@
 
                         <div>
                             <small class="text-muted d-block">
-                                Total of files
+                                Total de archivos
                             </small>
 
                             <h3 class="mb-0">
@@ -36,7 +36,7 @@
 
                         <div>
                             <small class="text-muted d-block">
-                                Created today
+                                Creados hoy
                             </small>
 
                             <h3 class="mb-0">
@@ -67,7 +67,7 @@
 
                         <div>
                             <small class="text-muted d-block">
-                                This month
+                                Este mes
                             </small>
 
                             <h3 class="mb-0">
@@ -92,7 +92,7 @@
 
                         <div>
                             <small class="text-muted d-block">
-                               Storage used
+                               Almacenamiento usado
                             </small>
 
                             <h3 class="mb-0">

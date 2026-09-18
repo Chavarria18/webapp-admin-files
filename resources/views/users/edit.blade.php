@@ -9,7 +9,7 @@
             @method('PUT')
 
             <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
+                <label for="name" class="form-label">Nombre</label>
                 <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror"
                     value="{{ old('name', $user->name) }}" required>
 
@@ -20,11 +20,11 @@
 
 
             <div class="mb-3">
-                <label for="role" class="form-label">Role</label>
+                <label for="role" class="form-label">Rol</label>
 
                 <select name="role" id="role" class="form-select @error('role') is-invalid @enderror" required>
                     <option value="estandar" {{ old('role', $user->role) === 'estandar' ? 'selected' : '' }}>
-                        Estandar
+                        Estándar
                     </option>
 
                     <option value="jefe_area" {{ old('role', $user->role) === 'jefe_area' ? 'selected' : '' }}>
@@ -48,7 +48,7 @@
             @if($user->role === 'gerente')
 
                 <div class="mb-3">
-                    <label for="area_ids" class="form-label">Areas</label>
+                    <label for="area_ids" class="form-label">Áreas</label>
 
                     <select name="area_ids[]" id="area_ids" class="form-select @error('area_ids') is-invalid @enderror"
                         multiple required>
@@ -71,7 +71,7 @@
             @else
 
                 <div class="mb-3">
-                    <label for="area_id" class="form-label">Area</label>
+                    <label for="area_id" class="form-label">Área</label>
 
                     <select name="area_id" id="area_id" class="form-select @error('area_id') is-invalid @enderror" required>
                         @foreach($areas as $area)
@@ -90,12 +90,12 @@
 
             <div class="d-flex justify-content-end gap-2">
                 <a href="{{ route('users.index') }}" class="btn btn-secondary">
-                    Cancel
+                    Cancelar
                 </a>
 
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-save"></i>
-                    Save changes
+                    Guardar cambios
                 </button>
             </div>
         </form>
@@ -106,7 +106,7 @@
 <script>
     $(document).ready(function () {
         $('#area_ids').select2({
-            placeholder: 'Select areas',
+            placeholder: 'Selecciona áreas',
             width: '100%'
         });
     });

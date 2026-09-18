@@ -9,7 +9,7 @@
                     <div class="login-logo">
                         <img src="{{ asset('images/logo.svg') }}" alt="Logo">
                     </div>
-                    <h1 class="login-title">New Password</h1>
+                    <h1 class="login-title">Nueva contraseña</h1>
                     @if (session('success'))
                         <div class="alert alert-success alert-dismissible">
                             {{ session('success') }}
@@ -32,15 +32,15 @@
                     <form method="POST" action="{{ route('auth.confirm-forgot-password') }}" class="login-form">
                         @csrf
 
-                        <input type="text" name="code" placeholder="Verification code" class="form-control" required>
+                        <input type="text" name="code" placeholder="Código de verificación" class="form-control" required>
 
-                        <input type="password" name="password" placeholder="New password" class="form-control" required>
+                        <input type="password" name="password" placeholder="Nueva contraseña" class="form-control" required>
 
-                        <input type="password" name="password_confirmation" placeholder="Confirm new password"
+                        <input type="password" name="password_confirmation" placeholder="Confirmar nueva contraseña"
                             class="form-control" required>
 
                         <button type="submit" class="btn btn-primary">
-                            Reset password
+                            Restablecer contraseña
                         </button>
                     </form>
 

@@ -155,7 +155,7 @@
 
         if (data.exists) {
             const uploadAnyway = confirm(
-                `${file.name} already exists. Upload anyway?`
+                `${file.name} ya existe. ¿Deseas subirlo de todas formas?`
             );
 
             if (!uploadAnyway) {

@@ -11,7 +11,7 @@
                     <div class="login-logo">
                         <img src="{{ asset('images/logo.svg') }}" alt="Logo">
                     </div>
-                    <h1 class="login-title">Login</h1>
+                    <h1 class="login-title">Iniciar sesión</h1>
                     @if (session('success'))
                         <div class="alert alert-success alert-dismissible">
                             {{ session('success') }}

@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="{{ route('home') }}">Home</a>
+    <a class="navbar-brand" href="{{ route('home') }}">Inicio</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
         aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -8,14 +8,14 @@
         <div class="navbar-nav">
             @if(auth()->user()->role !== 'estandar')
                 <a href="{{ route('users.index') }}" class="nav-link">
-                    Users
+                    Usuarios
                 </a>
             @endif
             @if(auth()->user()->role === 'admin')
 
 
                 <a href="{{ route('history') }}" class="nav-link">
-                    History
+                    Historial
                 </a>
 
                 <a href="{{ route('areas.index') }}" class="nav-link">
@@ -26,7 +26,7 @@
             <div class="navbar-right">
                 <span class="role">
                     @if(auth()->user()->area)
-                        Area: {{ auth()->user()->area->name  }} -
+                        Área: {{ auth()->user()->area->name  }} -
                     @endif
                     {{ strtoupper(str_replace("_"," ",auth()->user()->role)) }}
                 </span>

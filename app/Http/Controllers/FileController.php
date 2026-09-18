@@ -68,8 +68,7 @@ class FileController extends Controller
     public function downloadFiles(File $file)
     {
         $this->authorize('view', $file);
-
-        $name = explode("/", $file->s3dir)[1];
+       
         return Storage::disk('s3')->download(
             $file->s3dir,
             $file->name

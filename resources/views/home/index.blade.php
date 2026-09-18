@@ -2,7 +2,7 @@
 
 
     <div class="container">
-        <h1>{{ $filterUser ? "Files de {$filterUser->name}" : 'My Files' }}</h1>
+        <h1>{{ $filterUser ? "Archivos de {$filterUser->name}" : 'Mis archivos' }}</h1>
 
         @if ($filterUser)
             <a href="{{ route('home') }}" class="btn btn-outline-secondary btn-sm mb-3">
@@ -13,20 +13,20 @@
         <div class="row">
             <div class="col-md-8">
                 @if ($files->isEmpty())
-                    <p>No files found.</p>
+                    <p>No se encontraron archivos.</p>
                 @else
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Unique Identifier</th>
-                                <th>Original Name</th>
-                                <th>Size</th>
-                                <th>Uploaded</th>
-                                <th>Updated</th>
+                                <th>Identificador único</th>
+                                <th>Nombre original</th>
+                                <th>Tamaño</th>
+                                <th>Subido</th>
+                                <th>Actualizado</th>
                                 @if(auth()->user()->role === 'gerente')
-                                    <a>Area</a>
+                                    <a>Área</a>
                                 @endif
-                                <th>Action</th>
+                                <th>Acción</th>
                             </tr>
                         </thead>
 
@@ -55,7 +55,7 @@
 
                                     <td>
                                         <a href="{{ route('files.download', $file) }}" class="btn btn-outline-primary btn-sm"
-                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Download file">
+                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar archivo">
                                             <i class="bi bi-download"></i>
                                         </a>
                                         <form action="{{ route('files.destroy', $file) }}" method="POST" class="d-inline">
@@ -63,8 +63,8 @@
                                             @method('DELETE')
 
                                             <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
-                                                data-bs-placement="top" title="Delete file"
-                                                onclick="return confirm('Are you sure you want to delete this file?')">
+                                                data-bs-placement="top" title="Eliminar archivo"
+                                                onclick="return confirm('¿Está seguro de que desea eliminar este archivo?')">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
@@ -83,12 +83,12 @@
             <div class="col-md-4">
                 @include('files.info', ['metrics' => $metrics])
                 <a href="{{ route('files') }}" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top"
-                    title="Upload file">
+                    title="Subir archivo">
                     <i class="bi bi-upload"></i>
                 </a>
 
                 <a href="{{ route('recycle') }}" class="btn btn-info" data-bs-toggle="tooltip" data-bs-placement="top"
-                    title="Recycle bin">
+                    title="Papelera de reciclaje">
                     <i class="bi bi-trash"></i>
                 </a>
             </div>

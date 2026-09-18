@@ -13,7 +13,11 @@ class AreaController extends Controller
     {
         $this->authorize('viewAny', Area::class);
 
-        $areas = Area::withCount(['usuarios', 'gerentes'])->paginate(10);
+        $areas = Area::withCount([
+            'usuarios as estandar_count' => fn ($query) => $query->where('role', 'estandar'),
+            'usuarios as jefes_area_count' => fn ($query) => $query->where('role', 'jefe_area'),
+            'gerentes',
+        ])->paginate(10);
 
         return view('areas.index', compact('areas'));
     }

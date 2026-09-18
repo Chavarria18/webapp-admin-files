@@ -10,7 +10,7 @@
                     <div class="login-logo">
                         <img src="{{ asset('images/logo.svg') }}" alt="Logo">
                     </div>
-                    <h1 class="login-title">New Password</h1>
+                    <h1 class="login-title">Nueva contraseña</h1>
                     @if (session('success'))
                         <div class="alert alert-success alert-dismissible">
                             {{ session('success') }}

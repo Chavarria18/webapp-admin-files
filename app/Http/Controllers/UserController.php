@@ -17,7 +17,19 @@ class UserController extends Controller
     {
         $search = $request->search;
 
-        $query = User::visibleTo($request->user());
+        $query = User::visibleTo($request->user())->with(['area', 'areasGestionadas']);
+
+        if ($request->filled('area_id')) {
+            if ($request->role === 'gerente') {
+                $query->whereHas('areasGestionadas', fn ($q) => $q->where('areas.id', $request->area_id));
+            } else {
+                $query->where('area_id', $request->area_id);
+            }
+        }
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
 
         if (! empty($search)) {
             $query->where('email', 'like', "%{$search}%");

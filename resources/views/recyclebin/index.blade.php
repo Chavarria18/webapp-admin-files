@@ -2,25 +2,25 @@
 
 
     <div class="container">
-        <h1>Recycle BIN</h1>
+        <h1>Papelera de reciclaje</h1>
 
         <div class="row">
             <div class="col-md-8">
                 @if ($files->isEmpty())
-                    <p>No files found.</p>
+                    <p>No se encontraron archivos.</p>
                 @else
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Unique Identifier</th>
-                                <th>Original Name</th>
-                                <th>Size</th>
-                                <th>Uploaded</th>
-                                <th>Updated</th>
+                                <th>Identificador único</th>
+                                <th>Nombre original</th>
+                                <th>Tamaño</th>
+                                <th>Subido</th>
+                                <th>Actualizado</th>
                                 @if(auth()->user()->role === 'gerente')
-                                    <a>Area</a>
+                                    <a>Área</a>
                                 @endif
-                                <th>Action</th>
+                                <th>Acción</th>
                             </tr>
                         </thead>
 
@@ -49,7 +49,7 @@
 
                                     <td>
                                         <a href="{{ route('files.download', $file) }}" class="btn btn-outline-primary btn-sm"
-                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Download file">
+                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar archivo">
                                             <i class="bi bi-download"></i>
                                         </a>
                                         <form action="{{ route('files.fdestroy', $file) }}" method="POST" class="d-inline">
@@ -57,8 +57,8 @@
                                             @method('DELETE')
 
                                             <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
-                                                data-bs-placement="top" title="Delete file"
-                                                onclick="return confirm('Are you sure you want to permanently delete this file?')">
+                                                data-bs-placement="top" title="Eliminar archivo"
+                                                onclick="return confirm('¿Está seguro de que desea eliminar permanentemente este archivo?')">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
@@ -67,7 +67,7 @@
                                             @method('PATCH')
 
                                             <button type="submit" class="btn btn-outline-success btn-sm"
-                                                data-bs-toggle="tooltip" data-bs-placement="top" title="Restore file">
+                                                data-bs-toggle="tooltip" data-bs-placement="top" title="Restaurar archivo">
                                                 <i class="bi bi-arrow-counterclockwise"></i>
                                             </button>
                                         </form>

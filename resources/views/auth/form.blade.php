@@ -6,7 +6,7 @@
             <input
                 type="text"
                 name="name"
-                placeholder="Name"
+                placeholder="Nombre"
                 value="{{ old('name') }}"
                 required
                 class="form-control"
@@ -57,7 +57,7 @@
             <input
                 type="email"
                 name="email"
-                placeholder="Email"
+                placeholder="Correo electrónico"
                 value="{{ old('email') }}"
                 required
                 class="form-control"
@@ -71,7 +71,7 @@
                 type="password"
                 name="password"
                 id="password"
-                placeholder="Password"
+                placeholder="Contraseña"
                 required
                 class="form-control"
             >
@@ -88,17 +88,17 @@
     @if($type === 'login')
         <div class="form-group">
             <a href="{{ route('auth.forgot-password') }}">
-                Forgot password?
+                ¿Olvidaste tu contraseña?
             </a>
         </div>
     @endif
 
     <button type="submit" class="btn btn-primary">
             @if($type == 'new-password')
-            Update
+            Actualizar
             @endif
             @if($type != 'new-password')
-                {{ $type === 'register' ? 'Register' : 'Login' }}
+                {{ $type === 'register' ? 'Registrarse' : 'Iniciar sesión' }}
             @endif
         
     </button>

@@ -9,7 +9,7 @@
         @endif
         <form method="GET" action="{{ route('users.index') }}" class="mb-3">
             <div class="input-group">
-                <input type="text" name="search" class="form-control" placeholder="Search by name..."
+                <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..."
                     value="{{ request('search') }}">
 
                 <button class="btn btn-outline-secondary" type="submit">
@@ -31,10 +31,10 @@
                 <thead>
                     <tr>
                         <th>Nombre</th>
-                        <th>Email</th>
+                        <th>Correo electrónico</th>
                         <th>Rol</th>
                         <th>Área</th>
-                        <th>Files</th>
+                        <th>Archivos</th>
                         <th>Creado</th>
                         @if(auth()->user()->role === 'admin' || auth()->user()->role === 'gerente')
                             <th>Historial</th>
@@ -49,11 +49,17 @@
                         <tr>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
-                            <td>{{ $user->role }}</td>
-                            <td>{{ $user->area?->name ?? '—' }}</td>
+                            <td>{{  strtoupper(str_replace("_"," ",$user->role)) }}</td>
+                            <td>
+                                @if ($user->role === 'gerente')
+                                    {{ $user->areasGestionadas->pluck('name')->join(', ') ?: '—' }}
+                                @else
+                                    {{ $user->area?->name ?? '—' }}
+                                @endif
+                            </td>
                             <td>
                                 <a href="{{ route('home', ['user_id' => $user->id]) }}" class="btn btn-outline-secondary btn-sm"
-                                    data-bs-toggle="tooltip" data-bs-placement="top" title="View files">
+                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Ver archivos">
                                     <i class="bi bi-folder"></i>
                                 </a>
                             </td>
@@ -61,7 +67,7 @@
                             @if(auth()->user()->role === 'admin')
                                 <td>
                                     <a href="{{ route('users.edit', $user) }}" class="btn btn-outline-primary btn-sm"
-                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Download file">
+                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Editar usuario">
                                         <i class="bi bi-pencil"></i>
                                     </a>
 
@@ -70,8 +76,8 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
-                                            data-bs-placement="top" title="Delete file"
-                                            onclick="return confirm('Are you sure you want to delete this user?')">
+                                            data-bs-placement="top" title="Eliminar usuario"
+                                            onclick="return confirm('¿Está seguro de que desea eliminar este usuario?')">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
@@ -83,7 +89,7 @@
                                 <td>
                                     <a href="{{ route('history', ['user_id' => $user->id]) }}"
                                         class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="View history">
+                                        title="Ver historial">
                                         <i class="bi bi-clock-history"></i>
                                     </a>
                                 </td>

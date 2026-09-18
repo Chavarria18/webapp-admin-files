@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>File Admin</title>
+    <title>Administrador de Archivos</title>
 
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -64,17 +64,17 @@
 
                 <div class="footer-brand">
                     <i class="bi bi-folder-fill"></i>
-                    <span>File Admin</span>
+                    <span>Administrador de Archivos</span>
                 </div>
 
                 <div class="footer-info">
                     <span>
                         <i class="bi bi-shield-check"></i>
-                        Administración de archivos
+                        Aplicación web de administración de archivos
                     </span>
 
                     <span>
-                        © {{ date('Y') }} File Admin
+                        © {{ date('Y') }} Administrador de Archivos
                     </span>
                 </div>
 

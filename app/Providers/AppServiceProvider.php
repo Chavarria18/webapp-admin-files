@@ -19,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
             $client = new CognitoIdentityProviderClient([
                 'version' => 'latest',
                 'region' => config('cognito.region'),
+                'credentials' => [
+                    'key' => config('services.aws.key'),
+                    'secret' => config('services.aws.secret'),
+                ],
             ]);
 
             return new CognitoService(

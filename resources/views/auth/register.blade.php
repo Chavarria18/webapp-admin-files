@@ -9,7 +9,7 @@
 
                 @include('auth.form', [
                     'type' => 'register',
-                    'action' => route('users.register')
+                    'action' => route('users.register.store')
                 ])
             </div>
         </div>

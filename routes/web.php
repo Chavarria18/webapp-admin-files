@@ -80,7 +80,7 @@ Route::middleware(['cognito.auth', 'admin:admin,gerente,jefe_area'])->prefix('us
     Route::get('/register', [AuthController::class, 'showRegisterForm'])
         ->name('register');
     Route::post('/register', [AuthController::class, 'storeUser'])
-        ->name('register');
+        ->name('register.store');
 
     Route::get('/', [UserController::class, 'index'])->name('index');
     Route::get('/organigrama', [UserController::class, 'organigrama'])->name('organigrama');

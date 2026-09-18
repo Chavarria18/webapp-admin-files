@@ -18,15 +18,17 @@
                     History
                 </a>
 
-
+                <a href="{{ route('areas.index') }}" class="nav-link">
+                    Áreas
+                </a>
 
             @endif
             <div class="navbar-right">
                 <span class="role">
                     @if(auth()->user()->area)
-                        Area: {{ auth()->user()->area->name }} -
+                        Area: {{ auth()->user()->area->name  }} -
                     @endif
-                    {{ auth()->user()->role }}
+                    {{ strtoupper(str_replace("_"," ",auth()->user()->role)) }}
                 </span>
 
                 <form method="GET" action="{{ route('auth.logout') }}">

@@ -1,20 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AreaController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\FileController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
-## AUTH 
+// # AUTH
 Route::prefix('auth')->name('auth.')->group(function () {
 
     Route::get('/login', [AuthController::class, 'showLoginForm'])
         ->name('login');
 
     Route::post('/login', [AuthController::class, 'login'])
-        ->name('login.store');   
+        ->name('login.store');
 
     Route::get('/new-password', [AuthController::class, 'showNewPasswordForm'])
         ->name('new-password');
@@ -41,7 +42,7 @@ Route::prefix('auth')->name('auth.')->group(function () {
         ->name('logout');
 });
 
-##HOME
+// #HOME
 
 Route::get('/home', [HomeController::class, 'index'])
     ->name('home')
@@ -55,11 +56,8 @@ Route::get('/history', [HistoryController::class, 'index'])
     ->name('history')
     ->middleware(['cognito.auth', 'admin:admin,gerente']);
 
-
-
 Route::get('/files', [FileController::class, 'showFilesForm'])
     ->name('files')->middleware('cognito.auth');
-;
 
 Route::post('/files', [FileController::class, 'storeFiles'])
     ->name('files.store')->middleware('cognito.auth');
@@ -68,7 +66,6 @@ Route::delete('/files/{file}/destroy', [FileController::class, 'destroy'])
 Route::delete('/files/{file}/fdestroy', [FileController::class, 'forceDelete'])
     ->name('files.fdestroy')->middleware('cognito.auth');
 
-
 Route::get('/files/{file}/download', [FileController::class, 'downloadFiles'])
     ->name('files.download')->middleware('cognito.auth');
 Route::get('/files/check-name', [FileController::class, 'checkName'])
@@ -76,19 +73,29 @@ Route::get('/files/check-name', [FileController::class, 'checkName'])
 Route::patch('/files/{id}/restore', [FileController::class, 'restoreFile'])
     ->name('files.restore')->middleware('cognito.auth');
 
-##Usuarios
+// #Usuarios
 
-Route::middleware(['cognito.auth', 'admin:admin,gerente,jefe_area'])->prefix('users')->name('users.')->group(function(){
-    ##Creacion de usuairos
+Route::middleware(['cognito.auth', 'admin:admin,gerente,jefe_area'])->prefix('users')->name('users.')->group(function () {
+    // #Creacion de usuairos
     Route::get('/register', [AuthController::class, 'showRegisterForm'])
         ->name('register');
     Route::post('/register', [AuthController::class, 'storeUser'])
         ->name('register');
 
-
-    Route::get('/',[UserController::class,'index'])->name('index');
+    Route::get('/', [UserController::class, 'index'])->name('index');
     Route::get('/organigrama', [UserController::class, 'organigrama'])->name('organigrama');
     Route::get('/{user}/edit', [UserController::class, 'edit'])->name('edit');
     Route::put('/{user}', [UserController::class, 'update'])->name('update');
     Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
+});
+
+// #Areas
+
+Route::middleware(['cognito.auth', 'admin'])->prefix('areas')->name('areas.')->group(function () {
+    Route::get('/', [AreaController::class, 'index'])->name('index');
+    Route::get('/create', [AreaController::class, 'create'])->name('create');
+    Route::post('/', [AreaController::class, 'store'])->name('store');
+    Route::get('/{area}/edit', [AreaController::class, 'edit'])->name('edit');
+    Route::put('/{area}', [AreaController::class, 'update'])->name('update');
+    Route::delete('/{area}', [AreaController::class, 'destroy'])->name('destroy');
 });

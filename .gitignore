@@ -27,3 +27,7 @@ Homestead.yaml
 Thumbs.db
 /archify_out
 /docs
+/.claude
+.mcp.json
+boost.json
+CLAUDE.md

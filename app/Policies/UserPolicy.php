@@ -14,6 +14,17 @@ class UserPolicy
         return $user->role === 'admin';
     }
 
+    public function viewHistory(User $user,User $target): bool
+    {
+        
+        return match ($user->role) {
+            'admin' => true,
+            'gerente' => $user->areasGestionadas->contains($target->area_id),
+            'jefe_area' => false,
+            default => false,
+        };
+    }
+
     /**
      * Determine whether the user can create models.
      */

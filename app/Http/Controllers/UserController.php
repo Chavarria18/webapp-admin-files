@@ -17,11 +17,7 @@ class UserController extends Controller
     {
         $search = $request->search;
 
-        $query = match ($request->user()->role) {
-            'admin' => User::query(),
-            'gerente' => User::whereIn('area_id', $request->user()->areasGestionadas->pluck('id')),
-            'jefe_area' => User::where('area_id', $request->user()->area_id),
-        };
+        $query = User::visibleTo($request->user());
 
         if (! empty($search)) {
             $query->where('email', 'like', "%{$search}%");

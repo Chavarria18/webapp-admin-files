@@ -10,10 +10,15 @@ class HistoryController extends Controller
 {
     public function index(Request $request)
     {
+        $authUser = $request->user();
         $user = $request->filled('user_id') ? User::findOrFail($request->user_id) : null;
 
-        $historials = History::query()
-            ->when($user, fn ($query) => $query->where('user_id', $user->id))
+        if ($user) {
+            $this->authorize('viewHistory', $user);
+        }
+
+        $historials = History::visibleTo($authUser)
+            ->when($user, fn ($q) => $q->where('user_id', $user->id))
             ->latest()
             ->paginate(10)
             ->withQueryString();

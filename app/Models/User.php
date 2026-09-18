@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -41,7 +42,18 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Area::class, 'gerente_areas', 'gerente_id', 'area_id');
     }
-    
 
-    
+    /**
+     * Scope users to the ones a given user is allowed to see,
+     * based on their role's area rules.
+     */
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        return match ($user->role) {
+            'admin' => $query,
+            'gerente' => $query->whereIn('area_id', $user->areasGestionadas->pluck('id')),
+            'jefe_area' => $query->where('area_id', $user->area_id),
+            default => abort(403),
+        };
+    }
 }

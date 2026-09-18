@@ -53,7 +53,7 @@ Route::get('/recycle', [FileController::class, 'recycleBin'])
 
 Route::get('/history', [HistoryController::class, 'index'])
     ->name('history')
-    ->middleware(['cognito.auth', 'admin']);
+    ->middleware(['cognito.auth', 'admin:admin,gerente']);
 
 
 

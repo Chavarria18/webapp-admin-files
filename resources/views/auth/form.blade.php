@@ -94,7 +94,13 @@
     @endif
 
     <button type="submit" class="btn btn-primary">
-        {{ $type === 'register' ? 'Register' : 'Login' }}
+            @if($type == 'new-password')
+            Update
+            @endif
+            @if($type != 'new-password')
+                {{ $type === 'register' ? 'Register' : 'Login' }}
+            @endif
+        
     </button>
 </form>
 

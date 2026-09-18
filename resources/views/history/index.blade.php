@@ -2,7 +2,7 @@
     <div class="container">
         <h1>Historial{{ $user ? " de {$user->name}" : '' }}</h1>
 
-        @if ($user)
+        @if ($user && $user->role == "admin")
             <a href="{{ route('history') }}" class="btn btn-outline-secondary btn-sm mb-3">
                 <i class="bi bi-arrow-left"></i> Ver historial completo
             </a>

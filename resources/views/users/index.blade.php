@@ -36,6 +36,9 @@
                         <th>Área</th>
                         <th>Files</th>
                         <th>Creado</th>
+                        @if(auth()->user()->role === 'admin' || auth()->user()->role === 'gerente')
+                            <th>Historial</th>
+                        @endif
                         @if(auth()->user()->role === 'admin')
                             <th>Acciones</th>
                         @endif
@@ -49,9 +52,8 @@
                             <td>{{ $user->role }}</td>
                             <td>{{ $user->area?->name ?? '—' }}</td>
                             <td>
-                                <a href="{{ route('home', ['user_id' => $user->id]) }}"
-                                    class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip"
-                                    data-bs-placement="top" title="View files">
+                                <a href="{{ route('home', ['user_id' => $user->id]) }}" class="btn btn-outline-secondary btn-sm"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" title="View files">
                                     <i class="bi bi-folder"></i>
                                 </a>
                             </td>
@@ -74,6 +76,11 @@
                                         </button>
                                     </form>
 
+
+                                </td>
+                            @endif
+                            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'gerente')
+                                <td>
                                     <a href="{{ route('history', ['user_id' => $user->id]) }}"
                                         class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top"
                                         title="View history">

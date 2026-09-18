@@ -6,4 +6,6 @@ return [
     'client_id'     => env('AWS_COGNITO_CLIENT_ID'),
     'client_secret' => env('AWS_COGNITO_CLIENT_SECRET'),
     'version'       => env('AWS_COGNITO_VERSION', 'latest'),
+    'key'           => env('AWS_ACCESS_KEY_ID'),
+    'secret'        => env('AWS_SECRET_ACCESS_KEY'),
 ];

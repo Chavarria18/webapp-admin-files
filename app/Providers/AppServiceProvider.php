@@ -20,8 +20,8 @@ class AppServiceProvider extends ServiceProvider
                 'version' => 'latest',
                 'region' => config('cognito.region'),
                 'credentials' => [
-                    'key' => config('services.aws.key'),
-                    'secret' => config('services.aws.secret'),
+                    'key' => config('cognito.key'),
+                    'secret' => config('cognito.secret'),
                 ],
             ]);
 

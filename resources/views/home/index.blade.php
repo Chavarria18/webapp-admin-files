@@ -53,7 +53,13 @@
                         <tbody>
                             @foreach ($files as $file)
                                 <tr @class(['table-success' => session('new_file_id') === $file->id])>
-                                    <td>{{ $file->uuid }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm js-copy-uuid"
+                                            data-uuid="{{ $file->uuid }}" title="Copiar identificador único"
+                                            aria-label="Copiar identificador único">
+                                            <i class="bi bi-copy"></i>
+                                        </button>
+                                    </td>
                                     <td>{{ $file->name }}</td>
 
                                     <td>
@@ -115,5 +121,21 @@
 
     </div>
 
+    <script>
+        document.querySelectorAll('.js-copy-uuid').forEach(function (button) {
+            button.addEventListener('click', function () {
+                navigator.clipboard.writeText(button.dataset.uuid).then(function () {
+                    const icon = button.querySelector('i');
+                    icon.className = 'bi bi-check-lg';
+                    button.classList.replace('btn-outline-secondary', 'btn-outline-success');
+
+                    setTimeout(function () {
+                        icon.className = 'bi bi-copy';
+                        button.classList.replace('btn-outline-success', 'btn-outline-secondary');
+                    }, 1500);
+                });
+            });
+        });
+    </script>
 
 </x-app>

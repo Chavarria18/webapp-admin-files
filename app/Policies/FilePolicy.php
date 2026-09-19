@@ -47,7 +47,8 @@ class FilePolicy
     {
         return match ($user->role) {
             'admin' => true,
-            'gerente' => $user->areasGestionadas->contains($file->user->area_id),
+            'gerente' => $user->id === $file->user_id
+                || $user->areasGestionadas->contains($file->user->area_id),
             'jefe_area' => $user->id === $file->user_id,
             default => $user->id === $file->user_id,
         };
@@ -76,7 +77,8 @@ class FilePolicy
     {
         return match ($user->role) {
             'admin' => true,
-            'gerente' => $user->areasGestionadas->contains($file->user->area_id),
+            'gerente' => $user->id === $file->user_id
+                || $user->areasGestionadas->contains($file->user->area_id),
             'jefe_area' => $user->area_id === $file->user->area_id,
             default => $user->id === $file->user_id,
         };

@@ -20,7 +20,8 @@ class UserPolicy
         
         return match ($user->role) {
             'admin' => true,
-            'gerente' => $user->areasGestionadas->contains($target->area_id),
+            'gerente' => $user->id === $target->id
+                || $user->areasGestionadas->contains($target->area_id),
             'jefe_area' => false,
             default => false,
         };

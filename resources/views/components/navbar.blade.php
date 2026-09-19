@@ -24,11 +24,35 @@
 
             @endif
             <div class="navbar-right">
+                @php
+                    $roleLabel = strtoupper(str_replace('_', ' ', auth()->user()->role));
+                    $areasGestionadas = auth()->user()->role === 'gerente' && !auth()->user()->area
+                        ? auth()->user()->areasGestionadas->pluck('name')
+                        : collect();
+                @endphp
                 <span class="role">
+                    {{ auth()->user()->name }} -
                     @if(auth()->user()->area)
-                       {{ auth()->user()->name }} -  {{ auth()->user()->area->name  }} -
+                        {{ auth()->user()->area->name }} -
+                        {{ $roleLabel }}
+                    @elseif(auth()->user()->role === 'gerente')
+                        <div class="dropdown d-inline-block">
+                            <button type="button" class="btn btn-link dropdown-toggle text-reset text-decoration-none p-0 fw-medium align-baseline"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ $roleLabel }} · {{ $areasGestionadas->count() }}
+                                {{ $areasGestionadas->count() === 1 ? 'ÁREA' : 'ÁREAS' }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end areas-dropdown">
+                                @forelse($areasGestionadas as $areaName)
+                                    <li><span class="dropdown-item-text">{{ $areaName }}</span></li>
+                                @empty
+                                    <li><span class="dropdown-item-text text-muted">Sin áreas asignadas</span></li>
+                                @endforelse
+                            </ul>
+                        </div>
+                    @else
+                        {{ $roleLabel }}
                     @endif
-                    {{ strtoupper(str_replace("_"," ",auth()->user()->role)) }}
                 </span>
 
                 <form method="GET" action="{{ route('auth.logout') }}">

@@ -32,10 +32,31 @@
             $('#area-ids-group').toggleClass('d-none', !isGerente);
 
             $('#area_id').prop('required', !isGerente).prop('disabled', isGerente);
-            $('#area_ids').prop('required', isGerente).prop('disabled', !isGerente);
+            // Not "required": Select2 hides the real <select>, so the browser could not show
+            // its own pop-up. Validated manually on submit instead.
+            $('#area_ids').prop('disabled', !isGerente);
+            $('#area-ids-error').addClass('d-none');
+        }
+
+        function areasMissing() {
+            return $('#rol').val() === 'gerente' && !($('#area_ids').val() || []).length;
         }
 
         $('#rol').on('change', updateAreaMode);
         updateAreaMode();
+
+        $('#area_ids').on('change', function () {
+            if (!areasMissing()) {
+                $('#area-ids-error').addClass('d-none');
+            }
+        });
+
+        $('.register-form').on('submit', function (event) {
+            if (areasMissing()) {
+                event.preventDefault();
+                $('#area-ids-error').removeClass('d-none').css('display', 'block');
+                $('#area_ids').select2('open');
+            }
+        });
     });
 </script>

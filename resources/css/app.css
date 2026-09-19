@@ -143,3 +143,8 @@
 .role {
     font-weight: 500;
 }
+
+.areas-dropdown {
+    max-height: 300px;
+    overflow-y: auto;
+}

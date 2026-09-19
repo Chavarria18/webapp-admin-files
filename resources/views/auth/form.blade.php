@@ -49,6 +49,9 @@
                     </option>
                 @endforeach
             </select>
+            <div id="area-ids-error" class="invalid-feedback d-none">
+                Selecciona al menos un área.
+            </div>
         </div>
     @endif
 

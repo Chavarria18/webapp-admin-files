@@ -67,7 +67,7 @@ Route::delete('/files/{file}/fdestroy', [FileController::class, 'forceDelete'])
     ->name('files.fdestroy')->middleware('cognito.auth');
 
 Route::get('/files/{file}/download', [FileController::class, 'downloadFiles'])
-    ->name('files.download')->middleware('cognito.auth');
+    ->name('files.download')->middleware('cognito.auth')->withTrashed();
 Route::get('/files/check-name', [FileController::class, 'checkName'])
     ->name('files.check-name')->middleware('cognito.auth');
 Route::patch('/files/{id}/restore', [FileController::class, 'restoreFile'])

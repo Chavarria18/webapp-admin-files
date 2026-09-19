@@ -17,12 +17,21 @@ class HistoryController extends Controller
             $this->authorize('viewHistory', $user);
         }
 
+        $request->validate([
+            'date' => ['nullable', 'date'],
+        ]);
+
+        $search = trim((string) $request->input('search'));
+        $date = $request->input('date');
+
         $historials = History::visibleTo($authUser)
             ->when($user, fn ($q) => $q->where('user_id', $user->id))
+            ->when($search !== '', fn ($q) => $q->where('file_name', 'like', "%{$search}%"))
+            ->when($date, fn ($q) => $q->whereDate('created_at', $date))
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        return view('history.index', compact('historials', 'user'));
+        return view('history.index', compact('historials', 'user', 'search', 'date'));
     }
 }

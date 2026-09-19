@@ -13,12 +13,13 @@ use Illuminate\Support\Str;
 class FileController extends Controller
 {
 
-    private function logHistory(string $action): void
+    private function logHistory(string $action, File $file): void
     {
         $user = auth()->user();
 
         History::create([
             'action' => $action,
+            'file_name' => $file->name,
             'user_id' => $user->id,
             'username' => $user->name,
         ]);
@@ -34,7 +35,7 @@ class FileController extends Controller
 
     public function storeFiles(Request $request, S3Service $service)
     {
-        sleep(10);
+        
         $this->authorize('create', File::class);
 
         $validated = $request->validate([
@@ -61,7 +62,7 @@ class FileController extends Controller
             'user_id' => auth()->id(),
         ]);
 
-        $this->logHistory('upload');
+        $this->logHistory('upload', $archivo);
 
         return redirect()->route('home')
             ->with('success', "Archivo \"{$originalName}\" subido correctamente.")
@@ -102,7 +103,7 @@ class FileController extends Controller
 
         $file->delete();
 
-        $this->logHistory('delete');
+        $this->logHistory('delete', $file);
 
         return redirect()->route('home')->with('success', 'File moved to recycle bin');
     }
@@ -124,7 +125,7 @@ class FileController extends Controller
 
         $file->restore();
 
-        $this->logHistory('restore');
+        $this->logHistory('restore', $file);
 
         return redirect()->back()->with('success', 'File restored');
     }
@@ -141,7 +142,7 @@ class FileController extends Controller
 
         $file->forceDelete();
 
-        $this->logHistory('force_delete');
+        $this->logHistory('force_delete', $file);
 
         return back()->with('success', 'File permanently deleted');
     }

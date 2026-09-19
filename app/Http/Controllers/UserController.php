@@ -145,7 +145,7 @@ class UserController extends Controller
 
         File::where('user_id', $user->id)->update([
             'user_id' => auth()->id(),
-            'observacion' => 'Archivo transferido debido a la eliminación del usuario.',
+            'observation' => 'Archivo transferido debido a la eliminación del usuario.',
         ]);
         $user->delete();
 

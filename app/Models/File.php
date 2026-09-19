@@ -29,7 +29,10 @@ class File extends Model
         return match ($user->role) {
             'estandar' => $query->where('user_id', $user->id),
             'jefe_area' => $query->whereHas('user', fn (Builder $q) => $q->where('area_id', $user->area_id)),
-            'gerente' => $query->whereHas('user', fn (Builder $q) => $q->whereIn('area_id', $user->areasGestionadas->pluck('id'))),
+            'gerente' => $query->where(function (Builder $q) use ($user) {
+                $q->where('user_id', $user->id)
+                    ->orWhereHas('user', fn (Builder $u) => $u->whereIn('area_id', $user->areasGestionadas->pluck('id')));
+            }),
             'admin' => $query,
             default => abort(403),
         };

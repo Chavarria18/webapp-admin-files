@@ -73,7 +73,7 @@
                                  
                                     @if(auth()->user()->role === 'gerente')
                                         <td>
-                                            {{ $file->user->area->name }}
+                                            {{ $file->user->area?->name ?? 'Gerente' }}
                                         </td>
                                     @endif
 

@@ -101,7 +101,7 @@
             Actualizar
             @endif
             @if($type != 'new-password')
-                {{ $type === 'register' ? 'Registrarse' : 'Iniciar sesión' }}
+                {{ $type === 'register' ? 'Registrar usuario' : 'Iniciar sesión' }}
             @endif
         
     </button>

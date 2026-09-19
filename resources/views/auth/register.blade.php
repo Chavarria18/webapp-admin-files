@@ -5,6 +5,7 @@
 
     <div class="container register-page">
         <div class="row">
+            <h2>Registrar nuevo usuario</h2>
             <div class="col-md-6 register-container">
 
                 @include('auth.form', [

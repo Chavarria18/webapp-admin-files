@@ -31,7 +31,7 @@ class CognitoAuth
 
             return redirect()
                 ->route('auth.login')
-                ->withErrors(['error' => 'Your session has expired.']);
+                ->withErrors(['error' => 'Tu sesión ha expirado.']);
         }
 
         try {
@@ -41,7 +41,7 @@ class CognitoAuth
             $request->session()->regenerateToken();
 
             return redirect()->route('auth.login')
-                ->withErrors(['error'=> 'Invalid session, please log in again.']);
+                ->withErrors(['error'=> 'Sesión inválida, por favor inicia sesión nuevamente.']);
         }
         $user = User::where('cognito_sub', $claims->sub)->first();
         Auth::login($user);

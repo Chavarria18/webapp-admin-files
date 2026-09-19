@@ -32,12 +32,19 @@
                     <form method="POST" action="{{ route('auth.confirm-forgot-password') }}" class="login-form">
                         @csrf
 
-                        <input type="text" name="code" placeholder="Código de verificación" class="form-control" required>
+                        <input type="text" name="code" placeholder="Código de verificación" class="form-control"
+                            required>
 
-                        <input type="password" name="password" placeholder="Nueva contraseña" class="form-control" required>
+                        <input type="password" name="password" placeholder="Nueva contraseña" class="form-control"
+                            required>
 
                         <input type="password" name="password_confirmation" placeholder="Confirmar nueva contraseña"
                             class="form-control" required>
+                        <div class="form-group">
+                            <a href="{{ route('auth.login') }}">
+                                Volver al inicio de sesión
+                            </a>
+                        </div>
 
                         <button type="submit" class="btn btn-primary">
                             Restablecer contraseña

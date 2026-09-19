@@ -45,11 +45,11 @@ class RegisterCognitoUser
     private function errorMessageFor(?string $errorCode): string
     {
         return match ($errorCode) {
-            'UsernameExistsException' => 'A user with this email already exists in Cognito.',
-            'InvalidPasswordException' => 'The password does not meet Cognito requirements.',
-            'InvalidParameterException' => 'One or more values are invalid.',
-            'TooManyRequestsException' => 'Too many requests. Please try again later.',
-            default => 'Unable to create the user. Please try again.',
+            'UsernameExistsException' => 'Ya existe un usuario con este correo electrónico en Cognito.',
+            'InvalidPasswordException' => 'La contraseña no cumple con los requisitos de Cognito.',
+            'InvalidParameterException' => 'Uno o más valores no son válidos.',
+            'TooManyRequestsException' => 'Demasiadas solicitudes. Por favor, inténtalo de nuevo más tarde.',
+            default => 'No se pudo crear el usuario. Por favor, inténtalo de nuevo.',
         };
     }
 }

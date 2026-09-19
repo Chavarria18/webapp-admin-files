@@ -131,13 +131,13 @@ class UserController extends Controller
                 ->withErrors([
                     'user' => match ($e->getAwsErrorCode()) {
                         'UserNotFoundException' =>
-                            'The user does not exist in Cognito.',
+                            'El usuario no existe en Cognito.',
                         'NotAuthorizedException' =>
-                            'You are not authorized to delete this user.',
+                            'No tienes autorización para eliminar este usuario.',
                         'TooManyRequestsException' =>
-                            'Too many requests. Please try again later.',
+                            'Demasiadas solicitudes. Por favor, inténtalo de nuevo más tarde.',
                         default =>
-                            'Unable to delete the user from Cognito.',
+                            'No se pudo eliminar el usuario de Cognito.',
                     },
                 ]);
         }

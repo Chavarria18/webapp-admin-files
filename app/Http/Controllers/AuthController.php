@@ -48,7 +48,7 @@ class AuthController extends Controller
         }
 
         return redirect()->route('users.register')
-            ->with('success', 'User succesfuly created');
+            ->with('success', 'Usuario creado correctamente.');
     }
 
 
@@ -69,11 +69,11 @@ class AuthController extends Controller
             'password_reset_required' => $this->redirectToPasswordReset($request->email),
             'invalid_credentials' => back()
                 ->withInput($request->only('email'))
-                ->withErrors(['email' => 'Invalid email or password.']),
+                ->withErrors(['email' => 'Correo electrónico o contraseña incorrectos.']),
             'new_password_required' => $this->redirectToNewPassword($result['email'], $result['session']),
             'user_not_registered' => back()
                 ->withInput($request->only('email'))
-                ->withErrors(['email' => 'User is not registered in the system.']),
+                ->withErrors(['email' => 'El usuario no está registrado en el sistema.']),
             'success' => $this->establishSession($result['user'], $result['authentication']),
         };
     }
@@ -84,7 +84,7 @@ class AuthController extends Controller
 
         return redirect()
             ->route('auth.forgot-password')
-            ->with('info', 'Your password must be reset before you can sign in.');
+            ->with('info', 'Debes restablecer tu contraseña antes de iniciar sesión.');
     }
 
     private function redirectToNewPassword(string $email, string $cognitoSession)
@@ -139,7 +139,7 @@ class AuthController extends Controller
         ]);
 
         return redirect()->route('auth.login')
-            ->with('success', 'Password updated successfully.');
+            ->with('success', 'Contraseña actualizada correctamente.');
     }
 
 
@@ -167,7 +167,7 @@ class AuthController extends Controller
             return redirect()
                 ->route('auth.forgot-password')
                 ->withErrors([
-                    'email' => 'Password reset session expired.',
+                    'email' => 'La sesión de restablecimiento de contraseña ha expirado.',
                 ]);
         }
 
@@ -183,7 +183,7 @@ class AuthController extends Controller
 
         return redirect()
             ->route('auth.login')
-            ->with('success', 'Password reset successfully. You can now log in.');
+            ->with('success', 'Contraseña restablecida correctamente. Ya puedes iniciar sesión.');
     }
 
     public function sendResetCode(Request $request)
@@ -216,7 +216,7 @@ class AuthController extends Controller
 
         return redirect()
             ->route('auth.login')
-            ->with('success', 'Logged out successfully.');
+            ->with('success', 'Sesión cerrada correctamente.');
     }
 
 

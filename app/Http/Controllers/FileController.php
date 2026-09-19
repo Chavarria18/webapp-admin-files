@@ -97,7 +97,7 @@ class FileController extends Controller
     {
         if (auth()->user()->cannot('delete', $file)) {
             return redirect()->back()->withErrors([
-                    '403' => 'This user does not have permision to delete this file.',
+                    '403' => 'No tienes permiso para eliminar este archivo.',
                 ]);
         }
 
@@ -105,7 +105,7 @@ class FileController extends Controller
 
         $this->logHistory('delete', $file);
 
-        return redirect()->route('home')->with('success', 'File moved to recycle bin');
+        return redirect()->route('home')->with('success', 'Archivo movido a la papelera de reciclaje.');
     }
 
 
@@ -127,7 +127,7 @@ class FileController extends Controller
 
         $this->logHistory('restore', $file);
 
-        return redirect()->back()->with('success', 'File restored');
+        return redirect()->back()->with('success', 'Archivo restaurado.');
     }
 
     public function forceDelete($id)
@@ -144,7 +144,7 @@ class FileController extends Controller
 
         $this->logHistory('force_delete', $file);
 
-        return back()->with('success', 'File permanently deleted');
+        return back()->with('success', 'Archivo eliminado permanentemente.');
     }
 
 

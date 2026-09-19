@@ -1,0 +1,18 @@
+{
+    "Forbidden": "Acceso denegado",
+    "This action is unauthorized.": "Esta acción no está autorizada.",
+    "Not Found": "No encontrado",
+    "Page Expired": "Página expirada",
+    "Too Many Requests": "Demasiadas solicitudes",
+    "Server Error": "Error del servidor",
+    "Service Unavailable": "Servicio no disponible",
+    "Unauthorized": "No autorizado",
+    "Showing": "Mostrando",
+    "to": "a",
+    "of": "de",
+    "results": "resultados",
+    "Pagination Navigation": "Navegación de paginación",
+    "Go to page :page": "Ir a la página :page",
+    "Previous": "Anterior",
+    "Next": "Siguiente"
+}

@@ -34,6 +34,7 @@ class FileController extends Controller
 
     public function storeFiles(Request $request, S3Service $service)
     {
+        sleep(10);
         $this->authorize('create', File::class);
 
         $validated = $request->validate([
@@ -62,7 +63,9 @@ class FileController extends Controller
 
         $this->logHistory('upload');
 
-        return redirect()->route('files')->with('success', 'Archivo subido correctamente.');
+        return redirect()->route('home')
+            ->with('success', "Archivo \"{$originalName}\" subido correctamente.")
+            ->with('new_file_id', $archivo->id);
     }
 
     public function downloadFiles(File $file)

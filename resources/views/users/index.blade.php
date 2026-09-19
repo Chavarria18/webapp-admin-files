@@ -9,7 +9,7 @@
         @endif
         <form method="GET" action="{{ route('users.index') }}" class="mb-3">
             <div class="input-group">
-                <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..."
+                <input type="text" name="search" class="form-control" placeholder="Buscar por correo..."
                     value="{{ request('search') }}">
 
                 <button class="btn btn-outline-secondary" type="submit">

@@ -25,8 +25,10 @@
                     @enderror
                 </div>
 
-                <button type="submit" class="btn btn-primary">
-                    {{ isset($archivo) ? 'Actualizar' : 'Subir' }}
+                <button type="submit" id="submitButton" class="btn btn-primary">
+                    <span id="submitSpinner" class="spinner-border spinner-border-sm d-none" role="status"
+                        aria-hidden="true"></span>
+                    <span id="submitText">{{ isset($archivo) ? 'Actualizar' : 'Subir' }}</span>
                 </button>
             </form>
         </div>
@@ -147,21 +149,49 @@
             return;
         }
 
-        const response = await fetch(
-            `{{ route('files.check-name') }}?name=${encodeURIComponent(file.name)}`
-        );
+        const submitButton = document.getElementById('submitButton');
+        const submitSpinner = document.getElementById('submitSpinner');
+        const submitText = document.getElementById('submitText');
+        const originalText = submitText.textContent;
 
-        const data = await response.json();
+        const setLoading = (loading) => {
+            submitButton.disabled = loading;
+            submitSpinner.classList.toggle('d-none', !loading);
+            submitText.textContent = loading ? 'Subiendo...' : originalText;
+        };
 
-        if (data.exists) {
-            const uploadAnyway = confirm(
-                `${file.name} ya existe. ¿Deseas subirlo de todas formas?`
+        setLoading(true);
+
+        try {
+            const response = await fetch(
+                `{{ route('files.check-name') }}?name=${encodeURIComponent(file.name)}`
             );
 
-            if (!uploadAnyway) {
-                return;
+            const data = await response.json();
+
+            if (data.exists) {
+                const uploadAnyway = confirm(
+                    `${file.name} ya existe. ¿Deseas subirlo de todas formas?`
+                );
+
+                if (!uploadAnyway) {
+                    setLoading(false);
+                    return;
+                }
             }
+        } catch (error) {
+            setLoading(false);
+            throw error;
         }
+
         this.submit();
+    });
+
+    // Restore the button if the user comes back with the browser's back button.
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted) {
+            document.getElementById('submitButton').disabled = false;
+            document.getElementById('submitSpinner').classList.add('d-none');
+        }
     });
 </script>

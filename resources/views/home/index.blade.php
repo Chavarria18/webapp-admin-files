@@ -12,6 +12,26 @@
 
         <div class="row">
             <div class="col-md-8">
+                <form action="{{ route('home') }}" method="GET" class="mb-3">
+                    @if ($filterUser)
+                        <input type="hidden" name="user_id" value="{{ $filterUser->id }}">
+                    @endif
+
+                    <div class="input-group">
+                        <input type="search" name="search" value="{{ $search }}" class="form-control"
+                            placeholder="Buscar por identificador único o nombre" aria-label="Buscar archivos">
+                        <button type="submit" class="btn btn-outline-primary" title="Buscar">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        @if ($search !== '')
+                            <a href="{{ route('home', $filterUser ? ['user_id' => $filterUser->id] : []) }}"
+                                class="btn btn-outline-secondary" title="Limpiar búsqueda">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
+                        @endif
+                    </div>
+                </form>
+
                 @if ($files->isEmpty())
                     <p>No se encontraron archivos.</p>
                 @else
@@ -32,7 +52,7 @@
 
                         <tbody>
                             @foreach ($files as $file)
-                                <tr>
+                                <tr @class(['table-success' => session('new_file_id') === $file->id])>
                                     <td>{{ $file->uuid }}</td>
                                     <td>{{ $file->name }}</td>
 

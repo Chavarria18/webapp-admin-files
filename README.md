@@ -1,58 +1,115 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Webapp Admin Files
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel web application for managing files inside an organization. Users sign in through **AWS Cognito**, upload files to **AWS S3**, and see or manage files depending on their role and area. The interface is in Spanish.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Authentication with AWS Cognito**: login, first-login password change, forgot/reset password and logout. Sessions are validated against Cognito JWTs.
+- **File management**: upload (up to 10 MB per file), download, search by unique identifier or original name, and copy a file's unique identifier to the clipboard.
+- **Recycle bin**: deleting a file is a soft delete. Files can be restored or permanently deleted from the recycle bin.
+- **Automatic cleanup**: the `files:delete-expired` command permanently removes files (and their S3 objects) that have been in the recycle bin for more than 30 days.
+- **History**: every file action is logged and can be searched by admins and managers.
+- **User management**: create, edit and delete users, plus an organization chart view.
+- **Area management**: full CRUD for areas (admin only).
+- **File metrics**: total files, files uploaded today and this month, and total size, scoped to what the user can see.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Roles and permissions
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Each user has one role and, optionally, an area. What a user can see and delete depends on the role:
 
-## Learning Laravel
+| Role | Files they can access | Files they can delete |
+| --- | --- | --- |
+| `estandar` | Their own files | Their own files |
+| `jefe_area` | Files of users in their area | Their own files |
+| `gerente` | Files of the areas they manage | Files of the areas they manage |
+| `admin` | All files | All files |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Other permissions:
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- `/users`: `admin`, `gerente` and `jefe_area`.
+- `/history`: `admin` and `gerente`.
+- `/areas`: `admin` only.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+The rules live in [app/Policies](app/Policies) and are also enforced on the server.
 
-## Agentic Development
+## Tech stack
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- PHP 8.3+ and Laravel 13
+- SQLite by default (any database supported by Laravel works)
+- AWS SDK for PHP: Cognito for authentication, S3 for file storage
+- Blade views with Bootstrap 5 and Bootstrap Icons, built with Vite
+- PHPUnit for tests and Laravel Pint for code style
+
+## Getting started
+
+### Requirements
+
+- PHP 8.3 or higher and Composer
+- Node.js and npm
+- An AWS account with a Cognito user pool (and app client) and an S3 bucket
+
+### Installation
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite   # only if you use SQLite
+php artisan migrate
+npm install
+npm run build
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+`composer setup` runs most of these steps for you.
 
-## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## Code of Conduct
+```bash
+composer dev
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+This starts the development processes (`php artisan dev`). To run only the PHP server and the asset watcher, use `php artisan serve` and `npm run dev` in separate terminals. The app is served at `http://localhost:8000` by default.
 
-## Security Vulnerabilities
+### Running the tests
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+composer test
+```
+
+## Scheduled cleanup
+
+Files stay in the recycle bin for 30 days. To remove expired ones, run:
+
+```bash
+php artisan files:delete-expired
+```
+
+The command is not registered in the scheduler yet. To run it automatically, add it to `routes/console.php`, for example `Schedule::command('files:delete-expired')->daily();`, and make sure the scheduler runs (`php artisan schedule:work` locally, or a `* * * * * php artisan schedule:run` cron entry in production).
+
+## Project structure
+
+```
+app/
+  Console/Commands/   files:delete-expired command
+  Helpers/            JWT helper
+  Http/
+    Controllers/      Auth, Home, File, History, User and Area controllers
+    Middleware/       CognitoAuth (session/JWT check) and role-based admin middleware
+    Requests/         Form request validation
+  Models/             User, Area, File, History
+  Policies/           File, User and Area authorization rules
+  Services/           Cognito (auth, register, reset password), S3 and file metrics
+database/migrations/  Schema (users, areas, files, history, manager-area pivot)
+resources/views/      Blade templates
+routes/web.php        All application routes
+docs/                 Entity relationship diagram (erd-diagram.html)
+archify_out/          Entity relationship map in Mermaid (erd.md)
+```
+
+## Data model
+
+The main entities are `users`, `areas`, `files` and the `gerente_areas` pivot table (which areas each manager oversees), plus a `historials` table for the action log. See [archify_out/erd.md](archify_out/erd.md) or open [docs/erd-diagram.html](docs/erd-diagram.html) for the diagram.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

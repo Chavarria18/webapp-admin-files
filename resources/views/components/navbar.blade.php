@@ -26,7 +26,7 @@
             <div class="navbar-right">
                 <span class="role">
                     @if(auth()->user()->area)
-                        Área: {{ auth()->user()->area->name  }} -
+                       {{ auth()->user()->name }} -  {{ auth()->user()->area->name  }} -
                     @endif
                     {{ strtoupper(str_replace("_"," ",auth()->user()->role)) }}
                 </span>

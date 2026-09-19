@@ -42,9 +42,11 @@
                                 <th>Nombre original</th>
                                 <th>Tamaño</th>
                                 <th>Subido</th>
-                              
+                                @if(auth()->user()->role !== 'estandar')
+                                    <th>Subido por</th>
+                                @endif
                                 @if(auth()->user()->role === 'gerente')
-                                    <a>Área</a>
+                                    <th>Área</th>
                                 @endif
                                 <th>Acción</th>
                             </tr>
@@ -70,7 +72,10 @@
                                         {{ $file->created_at->format('Y-m-d H:i') }}
                                     </td>
 
-                                 
+                                    @if(auth()->user()->role !== 'estandar')
+                                        <td>{{ $file->user->name }}</td>
+                                    @endif
+
                                     @if(auth()->user()->role === 'gerente')
                                         <td>
                                             {{ $file->user->area?->name ?? 'Gerente' }}

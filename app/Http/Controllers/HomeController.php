@@ -23,6 +23,7 @@ public function __construct(private FileService $fileService)
         $search = trim((string) $request->input('search'));
 
         $files = File::visibleTo($user)
+            ->with('user.area')
             ->when($filterUser, fn ($q) => $q->where('user_id', $filterUser->id))
             ->when($search !== '', fn ($q) => $q->where(function ($q) use ($search) {
                 $q->where('uuid', 'like', "%{$search}%")

@@ -62,7 +62,7 @@
                                             <i class="bi bi-copy"></i>
                                         </button>
                                     </td>
-                                    <td>{{ $file->email }}</td>
+                                    <td>{{ $file->name }}</td>
 
                                     <td>
                                         {{ number_format($file->size / 1024, 2) }} KB

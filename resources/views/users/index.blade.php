@@ -60,7 +60,7 @@
                             <td>
                                 <a href="{{ route('home', ['user_id' => $user->id]) }}" class="btn btn-outline-secondary btn-sm"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Ver archivos">
-                                    <i class="bi bi-folder"></i>
+                                    <i class="bi bi-folder"></i> {{ $user->files_count }}
                                 </a>
                             </td>
                             <td>{{ $user->created_at?->format('Y-m-d') }}</td>
@@ -77,7 +77,7 @@
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
                                             data-bs-placement="top" title="Eliminar usuario"
-                                            onclick="return confirm('¿Está seguro de que desea eliminar este usuario?')">
+                                            onclick="return confirm('¿Está seguro de que desea eliminar este usuario? Se transferiran los archivos del usuario eliminado a este usuario actual')">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>

@@ -9,8 +9,11 @@
     justify-content: center;
     list-style: none;
     margin: 0;
-    padding-top: 30px;
     position: relative;
+}
+
+.orgchart {
+    padding-top: 30px;
 }
 
 .orgchart li {
@@ -57,14 +60,6 @@
     right: 50%;
 }
 
-.orgchart li:only-child {
-    padding-top: 0;
-}
-
-.orgchart li:only-child::before {
-    display: none;
-}
-
 .org-node {
     display: flex;
     flex-direction: column;
@@ -102,6 +97,18 @@
 
 .org-admin {
     border-color: #6f42c1;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.org-admin::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 2px;
+    height: 20px;
+    background: #c3cfdb;
 }
 
 .org-admin i {

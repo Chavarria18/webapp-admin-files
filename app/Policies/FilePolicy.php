@@ -58,7 +58,7 @@ class FilePolicy
      */
     public function restore(User $user, File $file): bool
     {
-        return $this->hasAccessTo($user, $file);
+        return $this->delete($user, $file);
     }
 
     /**
@@ -66,7 +66,7 @@ class FilePolicy
      */
     public function forceDelete(User $user, File $file): bool
     {
-        return $this->hasAccessTo($user, $file);
+        return $this->delete($user, $file);
     }
 
     /**

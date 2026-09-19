@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
@@ -38,27 +39,18 @@ class UserPolicy
      */
     public function update(User $user, User $target): bool
     {
-        return $this->hasAccessTo($user, $target);
+        return $user->role === 'admin';
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, User $target): bool
+    public function delete(User $user, User $target): Response|bool
     {
-        return $this->hasAccessTo($user, $target);
-    }
+        if ($user->id === $target->id) {
+            return Response::deny('No puedes eliminar tu propio usuario.');
+        }
 
-    /**
-     * Shared area scoping used by every action on a target user.
-     */
-    private function hasAccessTo(User $user, User $target): bool
-    {
-        return match ($user->role) {
-            'admin' => true,
-            'gerente' => $user->areasGestionadas->contains($target->area_id),
-            'jefe_area' => $user->area_id === $target->area_id,
-            default => false,
-        };
+        return $user->role === 'admin';
     }
 }

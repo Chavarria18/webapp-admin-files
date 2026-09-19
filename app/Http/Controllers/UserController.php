@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\File;
 use App\Models\Area;
 use App\Services\CognitoService;
+use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
+use Illuminate\Auth\Access\AuthorizationException;
 class UserController extends Controller
 {
     public function __construct(
@@ -17,7 +19,7 @@ class UserController extends Controller
     {
         $search = $request->search;
 
-        $query = User::visibleTo($request->user())->with(['area', 'areasGestionadas']);
+        $query = User::visibleTo($request->user())->with(['area', 'areasGestionadas'])->withCount('files');
 
         if ($request->filled('area_id')) {
             if ($request->role === 'gerente') {
@@ -107,7 +109,16 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        $this->authorize('delete', $user);
+        try {
+
+            $this->authorize('delete', $user);
+
+        } catch (AuthorizationException $e) {
+
+            return redirect()
+                ->route('users.index')
+                ->withErrors(['user' => $e->getMessage()]);
+        }
 
         try {
 
@@ -130,13 +141,18 @@ class UserController extends Controller
                     },
                 ]);
         }
-        $admin = User::where('role', 'admin')->first();
+        $filesCount = File::where('user_id', $user->id)->count();
+
         File::where('user_id', $user->id)->update([
-            'user_id' => $admin->id,
+            'user_id' => auth()->id(),
             'observacion' => 'Archivo transferido debido a la eliminación del usuario.',
         ]);
         $user->delete();
 
-        return redirect()->route('users.index')->with('success', 'Usuario eliminado.');
+        $message = $filesCount > 0
+            ? "Usuario eliminado. Se te transfirieron {$filesCount} archivo(s)."
+            : 'Usuario eliminado.';
+
+        return redirect()->route('users.index')->with('success', $message);
     }
 }

@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Helpers\JwtHelper;
-use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 class CognitoAuth
 {
@@ -41,12 +41,20 @@ class CognitoAuth
             $request->session()->regenerateToken();
 
             return redirect()->route('auth.login')
-                ->withErrors(['error'=> 'Sesión inválida, por favor inicia sesión nuevamente.']);
+                ->withErrors(['error' => 'Sesión inválida, por favor inicia sesión nuevamente.']);
         }
         $user = User::where('cognito_sub', $claims->sub)->first();
-        Auth::login($user);
+        if (!$user) {
+            session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('auth.login')
+                ->withErrors(['error' => 'No se encontró tu usuario, por favor inicia sesión nuevamente.']);
+        }
+
+       
         return $next($request);
     }
 
-    
+
 }

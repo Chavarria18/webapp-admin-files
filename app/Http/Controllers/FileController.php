@@ -6,8 +6,9 @@ use App\Services\S3Service;
 use Illuminate\Http\Request;
 use App\Models\File;
 use App\Models\History;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Throwable;
 
 
 class FileController extends Controller
@@ -35,7 +36,7 @@ class FileController extends Controller
 
     public function storeFiles(Request $request, S3Service $service)
     {
-        
+
         $this->authorize('create', File::class);
 
         $validated = $request->validate([
@@ -51,32 +52,50 @@ class FileController extends Controller
         } while (File::where('uuid', $fileName)->exists());
 
 
-        $path = $service->upload($request->file('file'), 'archivos', $fileName);
+        $path = $service->upload($file, 'archivos', $fileName);
 
+        if (!$path) {
+            return back()->withErrors(['file' => 'No se pudo subir el archivo. Intenta nuevamente.']);
+        }
 
-        $archivo = File::create([
-            'uuid' => $fileName,
-            'name' => $originalName,
-            's3dir' => $path,
-            'size' => $request->file('file')->getSize(),
-            'user_id' => auth()->id(),
-        ]);
+        try {
+            $archivo = DB::transaction(function () use ($fileName, $originalName, $path, $file) {
+                $archivo = File::create([
+                    'uuid' => $fileName,
+                    'name' => $originalName,
+                    's3dir' => $path,
+                    'size' => $file->getSize(),
+                    'user_id' => auth()->id(),
+                ]);
 
-        $this->logHistory('upload', $archivo);
+                $this->logHistory('upload', $archivo);
+
+                return $archivo;
+            });
+        } catch (Throwable $e) {
+            try {
+                $service->deleteIfExists($path);
+            } catch (Throwable $cleanupError) {
+                report($cleanupError);
+            }
+
+            report($e);
+
+            return back()
+                ->withInput()
+                ->withErrors(['file' => 'No se pudo guardar el archivo. Intenta nuevamente.']);
+        }
 
         return redirect()->route('home')
             ->with('success', "Archivo \"{$originalName}\" subido correctamente.")
             ->with('new_file_id', $archivo->id);
     }
 
-    public function downloadFiles(File $file)
+    public function downloadFiles(File $file, S3Service $service)
     {
         $this->authorize('view', $file);
-       
-        return Storage::disk('s3')->download(
-            $file->s3dir,
-            $file->name
-        );
+
+        return $service->download($file->s3dir, $file->name);
 
 
     }
@@ -97,8 +116,8 @@ class FileController extends Controller
     {
         if (auth()->user()->cannot('delete', $file)) {
             return redirect()->back()->withErrors([
-                    '403' => 'No tienes permiso para eliminar este archivo.',
-                ]);
+                '403' => 'No tienes permiso para eliminar este archivo.',
+            ]);
         }
 
         $file->delete();
@@ -130,15 +149,13 @@ class FileController extends Controller
         return redirect()->back()->with('success', 'Archivo restaurado.');
     }
 
-    public function forceDelete($id)
+    public function forceDelete($id, S3Service $service)
     {
         $file = File::onlyTrashed()->findOrFail($id);
 
         $this->authorize('forceDelete', $file);
 
-        if ($file->s3dir && Storage::disk('s3')->exists($file->s3dir)) {
-            Storage::disk('s3')->delete($file->s3dir);
-        }
+        $service->deleteIfExists($file->s3dir);
 
         $file->forceDelete();
 

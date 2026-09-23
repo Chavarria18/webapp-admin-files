@@ -20,9 +20,7 @@
                         </small>
                     @endif
 
-                    @error('file')
-                        <div class="text-danger">{{ $message }}</div>
-                    @enderror
+                  
                 </div>
 
                 <button type="submit" id="submitButton" class="btn btn-primary">

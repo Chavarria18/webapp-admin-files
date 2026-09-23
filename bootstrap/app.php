@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             "cognito.auth" => \App\Http\Middleware\CognitoAuth::class,
             "admin" => \App\Http\Middleware\RolAdmin::class
+        ]);      
+        $middleware->remove(\Illuminate\Http\Middleware\ValidatePostSize::class);
+        $middleware->web(append: [
+            \Illuminate\Http\Middleware\ValidatePostSize::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

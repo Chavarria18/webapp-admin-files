@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\PermissionScope;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -40,6 +41,30 @@ class User extends Authenticatable
         return in_array($this->role?->name, $names, true);
     }
 
+    /**
+     * The scope the user's role grants for an action, or null when it is not granted.
+     */
+    public function permissionScope(string $action): ?PermissionScope
+    {
+        return $this->role?->scopeFor($action);
+    }
+
+    /**
+     * Whether the user's role grants the action at all (any scope).
+     */
+    public function hasPermission(string $action): bool
+    {
+        return $this->permissionScope($action) !== null;
+    }
+
+    /**
+     * Whether the user may perform the action on a record owned by $owner.
+     */
+    public function canReach(string $action, ?User $owner): bool
+    {
+        return $this->permissionScope($action)?->allows($this, $owner) ?? false;
+    }
+
     public function area(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Area::class);
@@ -63,18 +88,11 @@ class User extends Authenticatable
 
     /**
      * Scope users to the ones a given user is allowed to see,
-     * based on their role's area rules.
+     * based on the scope of their role's "users.view" permission.
      */
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        return match ($user->role->name) {
-            'admin' => $query,
-             'gerente' => $query->where(function (Builder $q) use ($user) {
-                $q->where('id', $user->id)
-                    ->orWhereIn('area_id', $user->areasGestionadas->pluck('id'));
-            }),
-            'jefe_area' => $query->where('area_id', $user->area_id),
-            default => abort(403),
-        };
+        return $user->permissionScope('users.view')?->constrain($query, $user, 'id')
+            ?? $query->whereRaw('1 = 0');
     }
 }

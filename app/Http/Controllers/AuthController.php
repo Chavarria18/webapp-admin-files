@@ -35,7 +35,7 @@ class AuthController extends Controller
         $this->authorize('create', User::class);
 
         $areas = Area::all();
-        $roles = Role::orderBy('id')->get();
+        $roles = Role::assignableBy(auth()->user());
 
         return view('auth.register', compact('areas', 'roles'));
     }

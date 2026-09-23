@@ -50,25 +50,29 @@
                                             data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar archivo">
                                             <i class="bi bi-download"></i>
                                         </a>
-                                        <form action="{{ route('files.fdestroy', $file) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
+                                        @can('forceDelete', $file)
+                                            <form action="{{ route('files.fdestroy', $file) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
 
-                                            <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
-                                                data-bs-placement="top" title="Eliminar archivo"
-                                                onclick="return confirm('¿Está seguro de que desea eliminar permanentemente este archivo?')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                        <form action="{{ route('files.restore', $file->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('PATCH')
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" title="Eliminar archivo"
+                                                    onclick="return confirm('¿Está seguro de que desea eliminar permanentemente este archivo?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        @endcan
+                                        @can('restore', $file)
+                                            <form action="{{ route('files.restore', $file->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('PATCH')
 
-                                            <button type="submit" class="btn btn-outline-success btn-sm"
-                                                data-bs-toggle="tooltip" data-bs-placement="top" title="Restaurar archivo">
-                                                <i class="bi bi-arrow-counterclockwise"></i>
-                                            </button>
-                                        </form>
+                                                <button type="submit" class="btn btn-outline-success btn-sm"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Restaurar archivo">
+                                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                                </button>
+                                            </form>
+                                        @endcan
                                     </td>
                                 </tr>
                             @endforeach

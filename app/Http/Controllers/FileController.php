@@ -132,7 +132,7 @@ class FileController extends Controller
     {
         $user = auth()->user();
 
-        $files = File::visibleTo($user)->onlyTrashed()->paginate(10);
+        $files = File::visibleTo($user)->with('user.area')->onlyTrashed()->paginate(10);
         return view('recyclebin.index', compact('files'));
     }
 

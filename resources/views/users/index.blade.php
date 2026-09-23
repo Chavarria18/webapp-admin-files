@@ -1,12 +1,14 @@
 <x-app>
     <div class="container">
         <h1>Usuarios</h1>
-        @if(auth()->user()->hasRole('admin'))
+        @can('viewOrganigrama', App\Models\User::class)
             <a href="{{ route('users.organigrama') }}" class="btn btn-info mb-3">
                 Organigrama
             </a>
+        @endcan
+        @can('create', App\Models\User::class)
             <a href="{{ route('users.register') }}" class="btn btn-primary mb-3">Nuevo usuario</a>
-        @endif
+        @endcan
         <form method="GET" action="{{ route('users.index') }}" class="mb-3">
             <div class="input-group">
                 <input type="text" name="search" class="form-control" placeholder="Buscar por correo..."
@@ -36,10 +38,14 @@
                         <th>Área</th>
                         <th>Archivos</th>
                         <th>Creado</th>
-                        @if(auth()->user()->hasRole('admin', 'gerente'))
+                        @php
+                            $showHistory = auth()->user()->hasPermission('history.view');
+                            $showActions = auth()->user()->hasPermission('users.update') || auth()->user()->hasPermission('users.delete');
+                        @endphp
+                        @if($showHistory)
                             <th>Historial</th>
                         @endif
-                        @if(auth()->user()->hasRole('admin'))
+                        @if($showActions)
                             <th>Acciones</th>
                         @endif
                     </tr>
@@ -65,34 +71,37 @@
                             </td>
                             <td>{{ $user->created_at?->format('Y-m-d') }}</td>
                            
-                            @if(auth()->user()->hasRole('admin', 'gerente'))
+                            @if($showHistory)
                                 <td>
-                                    <a href="{{ route('history', ['user_id' => $user->id]) }}"
-                                        class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="Ver historial">
-                                        <i class="bi bi-clock-history"></i>
-                                    </a>
+                                    @can('viewHistory', $user)
+                                        <a href="{{ route('history', ['user_id' => $user->id]) }}"
+                                            class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="Ver historial">
+                                            <i class="bi bi-clock-history"></i>
+                                        </a>
+                                    @endcan
                                 </td>
                             @endif
-                             @if(auth()->user()->hasRole('admin'))
+                            @if($showActions)
                                 <td>
-                                    <a href="{{ route('users.edit', $user) }}" class="btn btn-outline-primary btn-sm"
-                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Editar usuario">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
+                                    @can('update', $user)
+                                        <a href="{{ route('users.edit', $user) }}" class="btn btn-outline-primary btn-sm"
+                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Editar usuario">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    @endcan
 
-
-                                    <form action="{{ route('users.destroy', $user) }}" method="POST" style="display:inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
-                                            data-bs-placement="top" title="Eliminar usuario"
-                                            onclick="return confirm('¿Está seguro de que desea eliminar este usuario? Se transferiran los archivos del usuario eliminado a este usuario actual')">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-
-
+                                    @can('delete', $user)
+                                        <form action="{{ route('users.destroy', $user) }}" method="POST" style="display:inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
+                                                data-bs-placement="top" title="Eliminar usuario"
+                                                onclick="return confirm('¿Está seguro de que desea eliminar este usuario? Se transferiran los archivos del usuario eliminado a este usuario actual')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    @endcan
                                 </td>
                             @endif
                         </tr>

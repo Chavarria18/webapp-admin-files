@@ -87,16 +87,18 @@
                                             data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar archivo">
                                             <i class="bi bi-download"></i>
                                         </a>
-                                        <form action="{{ route('files.destroy', $file) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
+                                        @can('delete', $file)
+                                            <form action="{{ route('files.destroy', $file) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
 
-                                            <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
-                                                data-bs-placement="top" title="Eliminar archivo"
-                                                onclick="return confirm('¿Está seguro de que desea eliminar este archivo?')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" title="Eliminar archivo"
+                                                    onclick="return confirm('¿Está seguro de que desea eliminar este archivo?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        @endcan
                                     </td>
                                 </tr>
                             @endforeach

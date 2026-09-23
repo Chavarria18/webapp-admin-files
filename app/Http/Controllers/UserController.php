@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Services\CognitoService;
 use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Validation\Rule;
 class UserController extends Controller
 {
     public function __construct(
@@ -46,7 +47,7 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        return view('users.edit', ['user' => $user, 'areas' => Area::all(), 'roles' => Role::orderBy('id')->get()]);
+        return view('users.edit', ['user' => $user, 'areas' => Area::all(), 'roles' => Role::assignableBy(auth()->user())]);
     }
 
     public function organigrama()
@@ -69,8 +70,7 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'role' => ['required', 'exists:roles,name'],
-           
+            'role' => ['required', Rule::in(Role::assignableBy($request->user())->pluck('name'))],
         ]);
 
         $roleId = Role::where('name', $validated['role'])->value('id');

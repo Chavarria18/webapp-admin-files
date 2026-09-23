@@ -1,17 +1,24 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Feature;
 
 use App\Models\Area;
 use App\Models\File;
 use App\Models\Role;
 use App\Models\User;
 use App\Policies\FilePolicy;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
+/**
+ * Runs against the permission matrix seeded by the migrations, so it also
+ * proves the default grants reproduce the original hard-coded rules.
+ */
 class FilePolicyTest extends TestCase
 {
+    use RefreshDatabase;
+
     private const AREA_A = 1;
 
     private const AREA_B = 2;
@@ -87,7 +94,7 @@ class FilePolicyTest extends TestCase
     }
 
     /**
-     * Build an in-memory user (no database needed).
+     * Build an unsaved user holding the seeded role (and its permissions).
      * Everyone lives in area A, except the gerente, who manages area A only.
      */
     private function makeUser(int $id, string $role, int $areaId = self::AREA_A): User
@@ -97,7 +104,7 @@ class FilePolicyTest extends TestCase
             'area_id' => $role === 'gerente' ? null : $areaId,
         ]);
 
-        $user->setRelation('role', (new Role())->forceFill(['name' => $role]));
+        $user->setRelation('role', Role::firstWhere('name', $role));
 
         $managed = $role === 'gerente'
             ? [(new Area())->forceFill(['id' => self::AREA_A])]

@@ -4,8 +4,11 @@ namespace App\Policies;
 
 use App\Models\File;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
+/**
+ * Every check reads the role's permission (and its scope) from the
+ * permission_role table, managed by the admin at /permissions.
+ */
 class FilePolicy
 {
     /**
@@ -21,7 +24,7 @@ class FilePolicy
      */
     public function view(User $user, File $file): bool
     {
-        return $this->hasAccessTo($user, $file);
+        return $user->canReach('files.view', $file->user);
     }
 
     /**
@@ -29,7 +32,7 @@ class FilePolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->hasPermission('files.create');
     }
 
     /**
@@ -37,7 +40,7 @@ class FilePolicy
      */
     public function update(User $user, File $file): bool
     {
-        return $this->hasAccessTo($user, $file);
+        return $user->canReach('files.update', $file->user);
     }
 
     /**
@@ -45,13 +48,7 @@ class FilePolicy
      */
     public function delete(User $user, File $file): bool
     {
-        return match ($user->role->name) {
-            'admin' => true,
-            'gerente' => $user->id === $file->user_id
-                || $user->areasGestionadas->contains($file->user->area_id),
-            'jefe_area' => $user->id === $file->user_id,
-            default => $user->id === $file->user_id,
-        };
+        return $user->canReach('files.delete', $file->user);
     }
 
     /**
@@ -59,7 +56,7 @@ class FilePolicy
      */
     public function restore(User $user, File $file): bool
     {
-        return $this->delete($user, $file);
+        return $user->canReach('files.restore', $file->user);
     }
 
     /**
@@ -67,20 +64,6 @@ class FilePolicy
      */
     public function forceDelete(User $user, File $file): bool
     {
-        return $this->delete($user, $file);
-    }
-
-    /**
-     * Shared area/ownership scoping used by every action on a file.
-     */
-    private function hasAccessTo(User $user, File $file): bool
-    {
-        return match ($user->role->name) {
-            'admin' => true,
-            'gerente' => $user->id === $file->user_id
-                || $user->areasGestionadas->contains($file->user->area_id),
-            'jefe_area' => $user->area_id === $file->user->area_id,
-            default => $user->id === $file->user_id,
-        };
+        return $user->canReach('files.force_delete', $file->user);
     }
 }

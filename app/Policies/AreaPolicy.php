@@ -11,7 +11,7 @@ class AreaPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $user->hasPermission('areas.manage');
     }
 
     /**
@@ -19,7 +19,7 @@ class AreaPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $user->hasPermission('areas.manage');
     }
 
     /**
@@ -27,7 +27,7 @@ class AreaPolicy
      */
     public function update(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $user->hasPermission('areas.manage');
     }
 
     /**
@@ -35,6 +35,6 @@ class AreaPolicy
      */
     public function delete(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $user->hasPermission('areas.manage');
     }
 }

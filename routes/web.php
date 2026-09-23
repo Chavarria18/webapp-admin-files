@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -54,7 +55,7 @@ Route::get('/recycle', [FileController::class, 'recycleBin'])
 
 Route::get('/history', [HistoryController::class, 'index'])
     ->name('history')
-    ->middleware(['cognito.auth', 'admin:admin,gerente']);
+    ->middleware(['cognito.auth', 'permission:history.view']);
 
 Route::get('/files', [FileController::class, 'showFilesForm'])
     ->name('files')->middleware('cognito.auth');
@@ -75,7 +76,7 @@ Route::patch('/files/{id}/restore', [FileController::class, 'restoreFile'])
 
 // #Usuarios
 
-Route::middleware(['cognito.auth', 'admin:admin,gerente,jefe_area'])->prefix('users')->name('users.')->group(function () {
+Route::middleware(['cognito.auth', 'permission:users.view'])->prefix('users')->name('users.')->group(function () {
     // #Creacion de usuairos
     Route::get('/register', [AuthController::class, 'showRegisterForm'])
         ->name('register');
@@ -91,11 +92,19 @@ Route::middleware(['cognito.auth', 'admin:admin,gerente,jefe_area'])->prefix('us
 
 // #Areas
 
-Route::middleware(['cognito.auth', 'admin'])->prefix('areas')->name('areas.')->group(function () {
+Route::middleware(['cognito.auth', 'permission:areas.manage'])->prefix('areas')->name('areas.')->group(function () {
     Route::get('/', [AreaController::class, 'index'])->name('index');
     Route::get('/create', [AreaController::class, 'create'])->name('create');
     Route::post('/', [AreaController::class, 'store'])->name('store');
     Route::get('/{area}/edit', [AreaController::class, 'edit'])->name('edit');
     Route::put('/{area}', [AreaController::class, 'update'])->name('update');
     Route::delete('/{area}', [AreaController::class, 'destroy'])->name('destroy');
+});
+
+// #Permisos
+// Gated by the admin role (not by a permission) so the admin can never lock themselves out.
+
+Route::middleware(['cognito.auth', 'admin'])->prefix('permissions')->name('permissions.')->group(function () {
+    Route::get('/', [PermissionController::class, 'index'])->name('index');
+    Route::put('/', [PermissionController::class, 'update'])->name('update');
 });

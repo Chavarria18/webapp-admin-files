@@ -5,26 +5,31 @@ namespace App\Policies;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
+/**
+ * Every check reads the role's permission (and its scope) from the
+ * permission_role table, managed by the admin at /permissions.
+ */
 class UserPolicy
 {
+    /**
+     * Determine whether the user can list users.
+     */
+    public function viewAny(User $user): bool
+    {
+        return $user->hasPermission('users.view');
+    }
+
     /**
      * Determine whether the user can view the organigram.
      */
     public function viewOrganigrama(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $user->hasPermission('users.organigram');
     }
 
-    public function viewHistory(User $user,User $target): bool
+    public function viewHistory(User $user, User $target): bool
     {
-        
-        return match ($user->role->name) {
-            'admin' => true,
-            'gerente' => $user->id === $target->id
-                || $user->areasGestionadas->contains($target->area_id),
-            'jefe_area' => false,
-            default => false,
-        };
+        return $user->canReach('history.view', $target);
     }
 
     /**
@@ -32,7 +37,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $user->hasPermission('users.create');
     }
 
     /**
@@ -40,7 +45,7 @@ class UserPolicy
      */
     public function update(User $user, User $target): bool
     {
-        return $user->hasRole('admin');
+        return $this->mayManage($user, $target) && $user->canReach('users.update', $target);
     }
 
     /**
@@ -52,6 +57,15 @@ class UserPolicy
             return Response::deny('No puedes eliminar tu propio usuario.');
         }
 
-        return $user->hasRole('admin');
+        return $this->mayManage($user, $target) && $user->canReach('users.delete', $target);
+    }
+
+    /**
+     * Only admins may edit or delete admins, whatever the permission matrix says,
+     * so a delegated permission can never be used to take over the admin account.
+     */
+    private function mayManage(User $user, User $target): bool
+    {
+        return ! $target->hasRole('admin') || $user->hasRole('admin');
     }
 }

@@ -6,22 +6,25 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-            @if(! auth()->user()->hasRole('estandar'))
+            @if(auth()->user()->hasPermission('users.view'))
                 <a href="{{ route('users.index') }}" class="nav-link">
                     Usuarios
                 </a>
             @endif
-            @if(auth()->user()->hasRole('admin'))
-
-
+            @if(auth()->user()->hasPermission('history.view'))
                 <a href="{{ route('history') }}" class="nav-link">
                     Historial
                 </a>
-
+            @endif
+            @if(auth()->user()->hasPermission('areas.manage'))
                 <a href="{{ route('areas.index') }}" class="nav-link">
                     Áreas
                 </a>
-
+            @endif
+            @if(auth()->user()->hasRole('admin'))
+                <a href="{{ route('permissions.index') }}" class="nav-link">
+                    Permisos
+                </a>
             @endif
             <div class="navbar-right">
                 @php

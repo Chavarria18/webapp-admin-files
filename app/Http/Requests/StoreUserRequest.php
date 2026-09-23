@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends FormRequest
 {
@@ -18,7 +20,7 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'min:8'],
-            'rol' => ['required', 'exists:roles,name'],
+            'rol' => ['required', Rule::in(Role::assignableBy($this->user())->pluck('name'))],
         ];
 
         if ($this->input('rol') === 'gerente') {

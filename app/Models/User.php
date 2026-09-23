@@ -52,8 +52,8 @@ class User extends Authenticatable
         return match ($user->role) {
             'admin' => $query,
              'gerente' => $query->where(function (Builder $q) use ($user) {
-                $q->where('user_id', $user->id)
-                    ->orWhereHas('user', fn (Builder $u) => $u->whereIn('area_id', $user->areasGestionadas->pluck('id')));
+                $q->where('id', $user->id)
+                    ->orWhereIn('area_id', $user->areasGestionadas->pluck('id'));
             }),
             'jefe_area' => $query->where('area_id', $user->area_id),
             default => abort(403),

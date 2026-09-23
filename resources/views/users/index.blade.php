@@ -64,7 +64,17 @@
                                 </a>
                             </td>
                             <td>{{ $user->created_at?->format('Y-m-d') }}</td>
-                            @if(auth()->user()->role === 'admin')
+                           
+                            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'gerente')
+                                <td>
+                                    <a href="{{ route('history', ['user_id' => $user->id]) }}"
+                                        class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="Ver historial">
+                                        <i class="bi bi-clock-history"></i>
+                                    </a>
+                                </td>
+                            @endif
+                             @if(auth()->user()->role === 'admin')
                                 <td>
                                     <a href="{{ route('users.edit', $user) }}" class="btn btn-outline-primary btn-sm"
                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Editar usuario">
@@ -83,15 +93,6 @@
                                     </form>
 
 
-                                </td>
-                            @endif
-                            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'gerente')
-                                <td>
-                                    <a href="{{ route('history', ['user_id' => $user->id]) }}"
-                                        class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="Ver historial">
-                                        <i class="bi bi-clock-history"></i>
-                                    </a>
                                 </td>
                             @endif
                         </tr>

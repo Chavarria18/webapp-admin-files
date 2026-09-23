@@ -6,12 +6,12 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-            @if(auth()->user()->role !== 'estandar')
+            @if(! auth()->user()->hasRole('estandar'))
                 <a href="{{ route('users.index') }}" class="nav-link">
                     Usuarios
                 </a>
             @endif
-            @if(auth()->user()->role === 'admin')
+            @if(auth()->user()->hasRole('admin'))
 
 
                 <a href="{{ route('history') }}" class="nav-link">
@@ -25,8 +25,8 @@
             @endif
             <div class="navbar-right">
                 @php
-                    $roleLabel = strtoupper(str_replace('_', ' ', auth()->user()->role));
-                    $areasGestionadas = auth()->user()->role === 'gerente' && !auth()->user()->area
+                    $roleLabel = mb_strtoupper(auth()->user()->role->label);
+                    $areasGestionadas = auth()->user()->hasRole('gerente') && !auth()->user()->area
                         ? auth()->user()->areasGestionadas->pluck('name')
                         : collect();
                 @endphp
@@ -35,7 +35,7 @@
                     @if(auth()->user()->area)
                         {{ auth()->user()->area->name }} -
                         {{ $roleLabel }}
-                    @elseif(auth()->user()->role === 'gerente')
+                    @elseif(auth()->user()->hasRole('gerente'))
                         <div class="dropdown d-inline-block">
                             <button type="button" class="btn btn-link dropdown-toggle text-reset text-decoration-none p-0 fw-medium align-baseline"
                                 data-bs-toggle="dropdown" aria-expanded="false">

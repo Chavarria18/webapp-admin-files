@@ -45,7 +45,7 @@ class FilePolicy
      */
     public function delete(User $user, File $file): bool
     {
-        return match ($user->role) {
+        return match ($user->role->name) {
             'admin' => true,
             'gerente' => $user->id === $file->user_id
                 || $user->areasGestionadas->contains($file->user->area_id),
@@ -75,7 +75,7 @@ class FilePolicy
      */
     private function hasAccessTo(User $user, File $file): bool
     {
-        return match ($user->role) {
+        return match ($user->role->name) {
             'admin' => true,
             'gerente' => $user->id === $file->user_id
                 || $user->areasGestionadas->contains($file->user->area_id),

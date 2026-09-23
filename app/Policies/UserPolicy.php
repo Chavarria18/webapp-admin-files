@@ -12,13 +12,13 @@ class UserPolicy
      */
     public function viewOrganigrama(User $user): bool
     {
-        return $user->role === 'admin';
+        return $user->hasRole('admin');
     }
 
     public function viewHistory(User $user,User $target): bool
     {
         
-        return match ($user->role) {
+        return match ($user->role->name) {
             'admin' => true,
             'gerente' => $user->id === $target->id
                 || $user->areasGestionadas->contains($target->area_id),
@@ -32,7 +32,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role === 'admin';
+        return $user->hasRole('admin');
     }
 
     /**
@@ -40,7 +40,7 @@ class UserPolicy
      */
     public function update(User $user, User $target): bool
     {
-        return $user->role === 'admin';
+        return $user->hasRole('admin');
     }
 
     /**
@@ -52,6 +52,6 @@ class UserPolicy
             return Response::deny('No puedes eliminar tu propio usuario.');
         }
 
-        return $user->role === 'admin';
+        return $user->hasRole('admin');
     }
 }

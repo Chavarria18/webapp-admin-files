@@ -19,8 +19,8 @@
                         <ul>
                             @foreach($areas as $area)
                                 @php
-                                    $jefes = $area->usuarios->where('role', 'jefe_area');
-                                    $estandares = $area->usuarios->where('role', 'estandar');
+                                    $jefes = $area->usuarios->where('role.name', 'jefe_area');
+                                    $estandares = $area->usuarios->where('role.name', 'estandar');
                                 @endphp
 
                                 <li>

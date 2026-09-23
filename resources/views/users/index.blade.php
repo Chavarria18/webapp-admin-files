@@ -1,7 +1,7 @@
 <x-app>
     <div class="container">
         <h1>Usuarios</h1>
-        @if(auth()->user()->role === 'admin')
+        @if(auth()->user()->hasRole('admin'))
             <a href="{{ route('users.organigrama') }}" class="btn btn-info mb-3">
                 Organigrama
             </a>
@@ -36,10 +36,10 @@
                         <th>Área</th>
                         <th>Archivos</th>
                         <th>Creado</th>
-                        @if(auth()->user()->role === 'admin' || auth()->user()->role === 'gerente')
+                        @if(auth()->user()->hasRole('admin', 'gerente'))
                             <th>Historial</th>
                         @endif
-                        @if(auth()->user()->role === 'admin')
+                        @if(auth()->user()->hasRole('admin'))
                             <th>Acciones</th>
                         @endif
                     </tr>
@@ -49,9 +49,9 @@
                         <tr>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
-                            <td>{{  strtoupper(str_replace("_"," ",$user->role)) }}</td>
+                            <td>{{ mb_strtoupper($user->role->label) }}</td>
                             <td>
-                                @if ($user->role === 'gerente')
+                                @if ($user->hasRole('gerente'))
                                     {{ $user->areasGestionadas->pluck('name')->join(', ') ?: '—' }}
                                 @else
                                     {{ $user->area?->name ?? '—' }}
@@ -65,7 +65,7 @@
                             </td>
                             <td>{{ $user->created_at?->format('Y-m-d') }}</td>
                            
-                            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'gerente')
+                            @if(auth()->user()->hasRole('admin', 'gerente'))
                                 <td>
                                     <a href="{{ route('history', ['user_id' => $user->id]) }}"
                                         class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top"
@@ -74,7 +74,7 @@
                                     </a>
                                 </td>
                             @endif
-                             @if(auth()->user()->role === 'admin')
+                             @if(auth()->user()->hasRole('admin'))
                                 <td>
                                     <a href="{{ route('users.edit', $user) }}" class="btn btn-outline-primary btn-sm"
                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Editar usuario">

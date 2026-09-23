@@ -21,7 +21,7 @@ class History extends Model
      */
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        return match ($user->role) {
+        return match ($user->role->name) {
             'admin' => $query,
             'gerente' => $query->where(function (Builder $q) use ($user) {
                 $q->where('user_id', $user->id)

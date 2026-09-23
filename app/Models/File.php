@@ -26,7 +26,7 @@ class File extends Model
      */
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        return match ($user->role) {
+        return match ($user->role->name) {
             'estandar' => $query->where('user_id', $user->id),
             'jefe_area' => $query->whereHas('user', fn (Builder $q) => $q->where('area_id', $user->area_id)),
             'gerente' => $query->where(function (Builder $q) use ($user) {

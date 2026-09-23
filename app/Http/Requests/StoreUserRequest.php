@@ -18,7 +18,7 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'min:8'],
-            'rol' => ['required', 'in:estandar,jefe_area,gerente,admin'],
+            'rol' => ['required', 'exists:roles,name'],
         ];
 
         if ($this->input('rol') === 'gerente') {

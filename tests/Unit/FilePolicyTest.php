@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\Area;
 use App\Models\File;
+use App\Models\Role;
 use App\Models\User;
 use App\Policies\FilePolicy;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -93,9 +94,10 @@ class FilePolicyTest extends TestCase
     {
         $user = (new User())->forceFill([
             'id' => $id,
-            'role' => $role,
             'area_id' => $role === 'gerente' ? null : $areaId,
         ]);
+
+        $user->setRelation('role', (new Role())->forceFill(['name' => $role]));
 
         $managed = $role === 'gerente'
             ? [(new Area())->forceFill(['id' => self::AREA_A])]

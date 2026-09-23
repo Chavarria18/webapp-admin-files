@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Role;
 use App\Models\User;
 use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
 
@@ -31,7 +32,7 @@ class RegisterCognitoUser
         $user->cognito_sub = $result['sub'];
         $user->name = $data['name'];
         $user->email = $data['email'];
-        $user->role = $data['rol'];
+        $user->role()->associate(Role::where('name', $data['rol'])->firstOrFail());
         $user->area_id = $data['rol'] === 'gerente' ? null : $data['area_id'];
         $user->save();
 

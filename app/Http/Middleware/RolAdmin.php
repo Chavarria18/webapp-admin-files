@@ -17,7 +17,7 @@ class RolAdmin
     {
         $allowed = $roles ?: ['admin'];
 
-        if (! in_array(auth()->user()->role, $allowed, true)) {
+        if (! auth()->user()->hasRole(...$allowed)) {
             abort(403);
         }
 

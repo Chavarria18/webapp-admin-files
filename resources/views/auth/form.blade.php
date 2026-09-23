@@ -16,10 +16,9 @@
         <div class="form-group">
             <select name="rol" id="rol" required class="form-control">
                 <option value="">Selecciona un rol</option>
-                <option value="estandar" {{ old('rol') === 'estandar' ? 'selected' : '' }}>Usuario estándar</option>
-                <option value="jefe_area" {{ old('rol') === 'jefe_area' ? 'selected' : '' }}>Jefe de área</option>
-                <option value="gerente" {{ old('rol') === 'gerente' ? 'selected' : '' }}>Gerente</option>
-                <option value="admin" {{ old('rol') === 'admin' ? 'selected' : '' }}>Administrador</option>
+                @foreach($roles as $role)
+                    <option value="{{ $role->name }}" {{ old('rol') === $role->name ? 'selected' : '' }}>{{ $role->label }}</option>
+                @endforeach
             </select>
         </div>
 

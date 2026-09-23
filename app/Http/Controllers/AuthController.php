@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Area;
+use App\Models\Role;
 
 class AuthController extends Controller
 {
@@ -34,7 +35,9 @@ class AuthController extends Controller
         $this->authorize('create', User::class);
 
         $areas = Area::all();
-        return view('auth.register', compact('areas'));
+        $roles = Role::orderBy('id')->get();
+
+        return view('auth.register', compact('areas', 'roles'));
     }
 
     public function storeUser(StoreUserRequest $request)

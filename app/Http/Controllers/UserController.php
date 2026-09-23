@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\File;
 use App\Models\Area;
+use App\Models\Role;
 use App\Services\CognitoService;
 use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -30,7 +31,7 @@ class UserController extends Controller
         }
 
         if ($request->filled('role')) {
-            $query->where('role', $request->role);
+            $query->whereRelation('role', 'name', $request->role);
         }
 
         if (! empty($search)) {
@@ -45,18 +46,18 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        return view('users.edit', ['user' => $user, 'areas' => Area::all()]);
+        return view('users.edit', ['user' => $user, 'areas' => Area::all(), 'roles' => Role::orderBy('id')->get()]);
     }
 
     public function organigrama()
     {
         $this->authorize('viewOrganigrama', User::class);
 
-        $admins = User::where('role', 'admin')->get();
+        $admins = User::whereRelation('role', 'name', 'admin')->get();
 
         $areas = Area::with([
             'gerentes',
-            'usuarios' => fn ($query) => $query->whereIn('role', ['jefe_area', 'estandar']),
+            'usuarios' => fn ($query) => $query->whereHas('role', fn ($q) => $q->whereIn('name', ['jefe_area', 'estandar'])),
         ])->get();
 
         return view('users.organigarm', compact('admins', 'areas'));
@@ -68,9 +69,11 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'role' => ['required', 'in:estandar,jefe_area,gerente,admin'],
+            'role' => ['required', 'exists:roles,name'],
            
         ]);
+
+        $roleId = Role::where('name', $validated['role'])->value('id');
 
         if ($request->role === 'gerente') {
 
@@ -81,7 +84,7 @@ class UserController extends Controller
 
             $user->update([
                 'name' => $validated['name'],
-                'role' => $validated['role'],
+                'role_id' => $roleId,
                 'area_id' => null,
             ]);
 
@@ -95,7 +98,7 @@ class UserController extends Controller
 
             $user->update([
                 'name' => $validated['name'],
-                'role' => $validated['role'],
+                'role_id' => $roleId,
                 'area_id' => $request->area_id,
             ]);
 

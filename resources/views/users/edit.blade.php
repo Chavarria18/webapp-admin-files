@@ -23,21 +23,11 @@
                 <label for="role" class="form-label">Rol</label>
 
                 <select name="role" id="role" class="form-select @error('role') is-invalid @enderror" required>
-                    <option value="estandar" {{ old('role', $user->role) === 'estandar' ? 'selected' : '' }}>
-                        Estándar
-                    </option>
-
-                    <option value="jefe_area" {{ old('role', $user->role) === 'jefe_area' ? 'selected' : '' }}>
-                        Jefe de Área
-                    </option>
-
-                    <option value="gerente" {{ old('role', $user->role) === 'gerente' ? 'selected' : '' }}>
-                        Gerente
-                    </option>
-
-                    <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>
-                        Admin
-                    </option>
+                    @foreach($roles as $role)
+                        <option value="{{ $role->name }}" {{ old('role', $user->role->name) === $role->name ? 'selected' : '' }}>
+                            {{ $role->label }}
+                        </option>
+                    @endforeach
                 </select>
 
                 @error('role')
@@ -45,7 +35,7 @@
                 @enderror
             </div>
 
-            @if($user->role === 'gerente')
+            @if($user->hasRole('gerente'))
 
                 <div class="mb-3">
                     <label for="area_ids" class="form-label">Áreas</label>

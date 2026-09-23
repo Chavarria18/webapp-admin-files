@@ -14,8 +14,8 @@ class AreaController extends Controller
         $this->authorize('viewAny', Area::class);
 
         $areas = Area::withCount([
-            'usuarios as estandar_count' => fn ($query) => $query->where('role', 'estandar'),
-            'usuarios as jefes_area_count' => fn ($query) => $query->where('role', 'jefe_area'),
+            'usuarios as estandar_count' => fn ($query) => $query->whereRelation('role', 'name', 'estandar'),
+            'usuarios as jefes_area_count' => fn ($query) => $query->whereRelation('role', 'name', 'jefe_area'),
             'gerentes',
         ])->paginate(10);
 

@@ -17,7 +17,7 @@
                                 <th>Tamaño</th>
                                 <th>Subido</th>
                        
-                                @if(auth()->user()->role === 'gerente')
+                                @if(auth()->user()->hasRole('gerente'))
                                     <a>Área</a>
                                 @endif
                                 <th>Acción</th>
@@ -39,7 +39,7 @@
                                     </td>
 
                                 
-                                    @if(auth()->user()->role === 'gerente')
+                                    @if(auth()->user()->hasRole('gerente'))
                                         <td>
                                             {{ $file->user->area?->name ?? 'Gerente' }}
                                         </td>

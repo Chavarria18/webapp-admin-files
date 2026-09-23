@@ -11,15 +11,33 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['cognito_sub', 'name', 'email', 'role', 'area_id'])]
+#[Fillable(['cognito_sub', 'name', 'email', 'role_id', 'area_id'])]
 #[Hidden([ 'remember_token'])]
 class User extends Authenticatable
 {
      use HasFactory, Notifiable;
 
+    /**
+     * The role is needed on almost every request (policies, scopes, navbar).
+     */
+    protected $with = ['role'];
+
     protected function casts(): array
     {
         return ['email_verified_at' => 'datetime'];
+    }
+
+    public function role(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Whether the user has any of the given role names.
+     */
+    public function hasRole(string ...$names): bool
+    {
+        return in_array($this->role?->name, $names, true);
     }
 
     public function area(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -49,7 +67,7 @@ class User extends Authenticatable
      */
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        return match ($user->role) {
+        return match ($user->role->name) {
             'admin' => $query,
              'gerente' => $query->where(function (Builder $q) use ($user) {
                 $q->where('id', $user->id)

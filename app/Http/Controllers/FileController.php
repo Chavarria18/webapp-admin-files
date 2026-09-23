@@ -41,6 +41,8 @@ class FileController extends Controller
 
         $validated = $request->validate([
             'file' => ['required', 'file', 'max:10240'], // 10MB
+        ], [
+            'file.max' => 'El archivo supera el tamaño máximo permitido (10MB).',
         ]);
         $file = $request->file('file');
         $originalName = $file->getClientOriginalName();
